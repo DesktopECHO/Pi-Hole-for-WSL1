@@ -8,7 +8,7 @@ Assembles dependancies
 
 Opens firewall ports 53 (DNS) and 10080 (Pi-hole web admin)
 
-Creates a  **/etc/pihole/setupVars.conf** file so the installer has a smoother run (the lack of an init system confuses the Pi-hole instaler)  
+Creates a  **/etc/pihole/setupVars.conf** file so the installer has a smoother run (the lack of an init system confuses the Pi-hole installer)  
 
 In Windows, **C:\\ProgramData\\Pi-hole.cmd -r** is an alias for **/usr/local/bin/pihole -r** \- You don't have to do any linux-y stuff if you just want a working Pi-hole.
 
