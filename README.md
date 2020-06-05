@@ -4,7 +4,7 @@ Enables WSL if not already done
 
 Downloads (from Ubuntu) the latest 20.04 WSL Image
 
-Assembles dependancies
+Assembles dependancies and trims some packages
 
 Opens firewall ports 53 (DNS) and 10080 (Pi-hole web admin)
 
