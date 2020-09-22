@@ -12,4 +12,4 @@ Creates a  **/etc/pihole/setupVars.conf** file so the installer has a smoother r
 
 In Windows, **C:\\ProgramData\\Pi-hole.cmd -r** is an alias for **/usr/local/bin/pihole -r** \- You don't have to do any linux-y stuff if you just want a working Pi-hole.
 
-Includes a Scheduled Task to accomodate running at login or boot time.
+Includes a Scheduled Task to accomodate auto-start at boot.  Edit the task and set "Run whether user is logged on or not" and "Run with the highest privileges"
