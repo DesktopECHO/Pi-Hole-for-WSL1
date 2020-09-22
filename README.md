@@ -2,7 +2,7 @@
 
 Enables WSL if not already done
 
-Downloads (from Ubuntu) the latest 20.04 WSL Image
+Downloads (from Ubuntu) the latest 20.04 WSL image and installs to C:\ProgramData\Pi-Hole
 
 Assembles dependancies and trims some packages
 
