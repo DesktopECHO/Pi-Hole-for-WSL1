@@ -1,4 +1,4 @@
-[PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/PH4WSL1.cmd)
+[PH4WSL.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/PH4WSL.cmd)
 
 Enables WSL if not already done
 
@@ -13,3 +13,5 @@ Creates a  **/etc/pihole/setupVars.conf** file so the installer has a smoother r
 In Windows, **C:\\ProgramData\\Pi-hole.cmd -r** is an alias for **/usr/local/bin/pihole -r** \- You don't have to do any linux-y stuff if you just want a working Pi-hole.
 
 Includes a Scheduled Task to accomodate auto-start at boot.  Edit the task and set "Run whether user is logged on or not" and "Run with the highest privileges"
+
+![PH4WSL](https://user-images.githubusercontent.com/33142753/94637641-7b3b9700-02ae-11eb-9d5f-e84579cccbdc.png)
