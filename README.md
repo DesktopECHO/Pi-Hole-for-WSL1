@@ -1,6 +1,6 @@
 # [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
 
-This scripts performs an automated install of Pi-Hole on Windows 10, version 1803 or newer or Windows Server 2019:
+This scripts performs an automated install of Pi-Hole on Windows Server 2019 or Windows 10 (version 1803 or newer):
 
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
