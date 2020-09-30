@@ -1,6 +1,6 @@
 # [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
 
-This scripts performs an automated install of Pi-Hole on Windows 10, version 1803 or newer.
+This scripts performs an automated install of Pi-Hole on Windows 10, version 1803 or newer:
 
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
@@ -11,6 +11,12 @@ This scripts performs an automated install of Pi-Hole on Windows 10, version 180
 * Opens Windows Firewall ports for DNS and Pi-hole web admin
 
 * Includes a Scheduled Task to accomodate auto-start at boot.  Edit the task, under General tab check **Run whether user is logged on or not** and **Hidden** and in the Conditions tab uncheck **Start the task only if the computer is on AC power**
+
+Additional Info:
+
+* To reset or reconfigure Pi-Hole, run **Pi-hole_ResetReconfigure.cmd** in the Pi-hole install folder
+
+* DHCP Server is disabled and only IPv4 is supported
 
 Below is a console dump and (trimmed) screenshot of the install procedure:
 
