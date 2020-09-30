@@ -56,6 +56,11 @@ ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "pihole -r" > "%PRGF%\Pi-hole_Re
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /dev/nul" > "%PRGF%\Pi-hole_RunTask.cmd" 
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf" >> "%PRGF%\Pi-hole_RunTask.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service restart ; done" >> "%PRGF%\Pi-hole_RunTask.cmd"
+ECHO @ECHO To uninstall Pi-hole, > "%PRGF%\Pi-hole_Uninstall.cmd"
+ECHO @PAUSE >> "%PRGF%\Pi-hole_Uninstall.cmd"
+ECHO @COPY "%PRGF%\LxRunOffline.exe" "%TEMP%" >> "%PRGF%\Pi-hole_Uninstall.cmd"
+ECHO @WSLCONFIG /T Pi-hole >> "%PRGF%\Pi-hole_Uninstall.cmd"
+ECHO @START "Uninstall Pi-Hole" "%TEMP%\LxRunOffline.exe" "ui" "-n" "Pi-hole" >> "%PRGF%\Pi-hole_Uninstall.cmd"
 SCHTASKS /RUN /TN "Pi-hole for WSL"
 ECHO.
 ECHO Wait for Pi-hole launcher window to close and
