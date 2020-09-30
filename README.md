@@ -1,4 +1,4 @@
-[PH4WSL.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/PH4WSL.cmd)
+[PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/PH4WSL1.cmd)
 
 Enables WSL if not already done
 
