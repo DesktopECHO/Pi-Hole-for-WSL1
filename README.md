@@ -1,8 +1,8 @@
-# [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
+# PH4WSL1.cmd
 
 This scripts performs an automated install of Pi-hole 5 for Windows 10 (version 1803 and newer) or Windows Server 2019
 
-Copy PH4WSL1 to your computer and "Run as Administrator"
+Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
@@ -16,21 +16,29 @@ Copy PH4WSL1 to your computer and "Run as Administrator"
 
 Additional Info:
 
+* DHCP Server is disabled and only IPv4 is supported
+
 * To reset or reconfigure Pi-Hole, run **Pi-hole_Reconfigure.cmd** in the Pi-hole install folder
 
 * To uninstall Pi-Hole, run **Pi-hole_Uninstall.cmd** in the Pi-hole install folder
 
-* DHCP Server is disabled and only IPv4 is supported
-
 Below is a console dump and (trimmed) screenshot of the install procedure:
 
-```Pi-hole 5.x for WSL
-------------------------------------------------------------------
-Pi-hole listener IP and subnet in CIDR format, ie: 192.168.3.99/24
-Respone: 10.74.0.253/24
+```Pi-hole for WSL
+---------------
+
+Location of 'Pi-hole' folder [Default = C:\Program Files]
+Response:
+
+Pi-hole listener IP and subnet in CIDR format, ie: 192.168.1.99/24
+Response: 10.74.0.253/24
 
 Port for Pi-hole. Port 80 is good if you don't have a webserver, or hit enter for default [8880]:
-Respone: 80
+Response: 80
+
+Install to: C:\Program Files\Pi-hole
+   Network: 10.74.0.253/24
+      Port: 80
 
 Fetching LxRunOffline...
 
@@ -39,10 +47,8 @@ Installing distro...
 Configuring distro, this can take a few minutes...
 
 Extracting templates from packages: 100%
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   145  100   145    0     0     44      0  0:00:03  0:00:03 --:--:--    74
-100  118k  100  118k    0     0  25065      0  0:00:04  0:00:04 --:--:--  139k
+
+
 
   [✓] Root user check
 
