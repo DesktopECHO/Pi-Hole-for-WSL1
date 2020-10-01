@@ -1,6 +1,8 @@
 # [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
 
-This scripts performs an automated install of Pi-Hole for Windows 10 (version 1803 and newer) or Windows Server 2019:
+This scripts performs an automated install of Pi-hole 5 for Windows 10 (version 1803 and newer) or Windows Server 2019
+
+Copy PH4WSL1 to your computer and "Run as Administrator"
 
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
@@ -14,7 +16,9 @@ This scripts performs an automated install of Pi-Hole for Windows 10 (version 18
 
 Additional Info:
 
-* To reset or reconfigure Pi-Hole, run **Pi-hole_ResetReconfigure.cmd** in the Pi-hole install folder
+* To reset or reconfigure Pi-Hole, run **Pi-hole_Reconfigure.cmd** in the Pi-hole install folder
+
+* To uninstall Pi-Hole, run **Pi-hole_Uninstall.cmd** in the Pi-hole install folder
 
 * DHCP Server is disabled and only IPv4 is supported
 
