@@ -13,7 +13,7 @@ Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH
 
 * Adds exceptions to Windows Firewall for DNS and Pi-hole admin page
 
-* Includes a Scheduled Task **Pi-hose_Task.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
+* Includes a Scheduled Task **Pi-hole_Task.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
 Additional Info:
 
