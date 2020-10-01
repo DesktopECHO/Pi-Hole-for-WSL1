@@ -1,6 +1,7 @@
-# PH4WSL1.cmd
+# PH4WSL1.cmd (Pi-hole for Windows)
 
-This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1803 and newer) or Windows Server 2019.  No Linux expertise required.
+This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1803 and newer) or Windows Server 2019.  
+No Linux expertise required.
 
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
