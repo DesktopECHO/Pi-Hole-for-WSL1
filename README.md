@@ -1,6 +1,6 @@
 # PH4WSL1.cmd
 
-This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1803 and newer) or Windows Server 2019
+This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1803 and newer) or Windows Server 2019.  No Linux expertise required.
 
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
@@ -10,9 +10,9 @@ Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH
 
 * Creates a  **/etc/pihole/setupVars.conf** file for an automated install 
 
-* Opens Windows Firewall ports for DNS and Pi-hole web admin
+* Adds exceptions to Windows Firewall for DNS and Pi-hole admin page
 
-* Includes a Scheduled Task to accomodate auto-start at boot.  Edit the task, under General tab check **Run whether user is logged on or not** and **Hidden** and in the Conditions tab uncheck **Start the task only if the computer is on AC power**
+* Includes a Scheduled Task **Pi-hose_Task.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
 Additional Info:
 
@@ -82,11 +82,7 @@ Extracting templates from packages: 100%
       Kernel update detected. If the install fails, please reboot and try again
   [i] Installer Dependency checks...
   [✓] Checking for dhcpcd5
-  [✓] Checking for git
-  [✓] Checking for iproute2
-  [✓] Checking for whiptail
-  [✓] Checking for dnsutils
-
+ 
   [✓] Supported OS detected
   [i] SELinux not detected
   [✗] Check for existing repository in /etc/.pihole
@@ -96,28 +92,6 @@ Extracting templates from packages: 100%
   [✗] Check for existing repository in /var/www/html/admin
   [i] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin...HEAD is now at a03d1bd Merge pull request #1498 from pi-hole/release/v5.1.1
   [✓] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin
-
-  [i] Main Dependency checks...
-  [✓] Checking for cron
-  [✓] Checking for curl
-  [✓] Checking for iputils-ping
-  [✓] Checking for lsof
-  [✓] Checking for netcat
-  [✓] Checking for psmisc
-  [✓] Checking for sudo
-  [✓] Checking for unzip
-  [✓] Checking for wget
-  [✓] Checking for idn2
-  [✓] Checking for sqlite3
-  [✓] Checking for libcap2-bin
-  [✓] Checking for dns-root-data
-  [✓] Checking for libcap2
-  [✓] Checking for lighttpd
-  [✓] Checking for php7.4-common
-  [✓] Checking for php7.4-cgi
-  [✓] Checking for php7.4-sqlite3
-  [✓] Checking for php7.4-xml
-  [✓] Checking for php7.4-intl
 
   [✓] Enabling lighttpd service to start on reboot...
   [✓] Creating user 'pihole'
@@ -204,6 +178,6 @@ Wait for launcher window to close then
 Press any key to continue . . .
 Pi-hole 5.x for WSL Install Complete!                  
 ```
-
+Expected installer output, truncated screen shot:
 
 ![PH4WSL](https://user-images.githubusercontent.com/33142753/94637641-7b3b9700-02ae-11eb-9d5f-e84579cccbdc.png)
