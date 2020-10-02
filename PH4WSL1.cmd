@@ -54,7 +54,7 @@ SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c
 %GO% "echo INSTALL_WEB_SERVER=true >> /etc/pihole/setupVars.conf"
 %GO% "echo INSTALL_WEB_INTERFACE=true >> /etc/pihole/setupVars.conf"
 %GO% "echo LIGHTTPD_ENABLED=true >> /etc/pihole/setupVars.conf"
-%GO% "curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended"
+%GO% "curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true sudo -E bash /dev/stdin --unattended"
 %GO% "echo Web Interface Admin ; pihole -a -p"
 %GO% "sed -i 's/= 80/= %PORT%/g' /etc/lighttpd/lighttpd.conf"
 %GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid"
