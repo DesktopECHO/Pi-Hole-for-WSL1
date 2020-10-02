@@ -4,6 +4,8 @@
 
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
+**If the Pi-hole installer throws an "Unsupported OS" error midway through the insallation, it means you didn't update Windows before running this script (see below for KB numbers)  Uninstall Pi-hole, update your machine, and try again.**
+
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
 * Installs and Configures distro, downloads and executes Pi-hole installer 
