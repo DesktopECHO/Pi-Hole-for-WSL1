@@ -1,6 +1,6 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 
-This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1803 and newer) or Windows Server 2019, no Linux expertise required.
+**This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1809 and newer) or Windows Server 2019, no Linux expertise required.**
 
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
@@ -14,7 +14,13 @@ Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH
 
 * Includes a Scheduled Task **Pi-hole_Task.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
-Additional Info:
+**Requires the recent (August/Sept 2020) WSL update for Windows 10:**
+
+* 1809 - KB4571748
+* 1909 - KB4566116
+* 2004 - KB4571756
+
+**Additional Info:**
 
 * DHCP Server is disabled and only IPv4 is supported
 
@@ -24,7 +30,8 @@ Additional Info:
 
 Below is a console dump and (trimmed) screenshot of the install procedure:
 
-```Pi-hole for WSL
+```
+Pi-hole for WSL
 ---------------
 
 Location of 'Pi-hole' folder [Default = C:\Program Files]
