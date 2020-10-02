@@ -41,9 +41,9 @@ ECHO.
 ECHO.Configuring distro, this can take a few minutes...
 ECHO. 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
-%GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh ; rm -rf  /var/lib/dpkg/info/udev.postinst"
-%GO% "apt-get -qq update ; apt-get -qq --purge remove openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev --autoremove --allow-remove-essential" > NUL
-%GO% "apt-get -qq install inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano cron" > NUL
+%GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
+%GO% "apt-get update ; apt-get -y --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get -y dist-upgrade" > NUL 
+%GO% "apt-get -y install unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > NUL
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "echo BLOCKING_ENABLED=true > /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_INTERFACE=eth0 >> /etc/pihole/setupVars.conf"
@@ -66,15 +66,16 @@ ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /d
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf" >> "%PRGF%\Pi-hole_Task.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service restart ; done"       >> "%PRGF%\Pi-hole_Task.cmd"
 
-ECHO @ECHO Uninstall Pi-hole                                >  "%PRGF%\Pi-hole_Uninstall.cmd"
+ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "pihole -r" >  "%PRGF%\Pi-hole_Reconfigure.cmd"
+
+:LEAVE
+ECHO @ECHO Uninstall Pi-hole?                               >  "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @PAUSE                                                 >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @XCOPY /Q /Y "%PRGF%\LxRunOffline.exe" "%WINDIR%\Temp" >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @CD "%USERPROFILE%"		                    >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                  >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @%WINDIR%\Temp\LxRunOffline.exe ur -n Pi-hole          >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @RD /S /Q "%PRGF%"                                     >> "%PRGF%\Pi-hole_Uninstall.cmd"
-
-ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "pihole -r" >  "%PRGF%\Pi-hole_Reconfigure.cmd"
 
 SCHTASKS /RUN /TN "Pi-hole for WSL"
 ECHO.
