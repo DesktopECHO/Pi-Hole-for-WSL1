@@ -1,8 +1,8 @@
-# [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
+# PH4WSL1.cmd (Pi-hole for Windows)
 
-This scripts performs an automated install of Pi-hole 5 for Windows 10 (version 1803 and newer) or Windows Server 2019
+**This scripts performs an automated install of Pi-hole 5 on Windows 10 (version 1809 and newer) or Windows Server 2019.  No Linux, Virtualization, or Container expertise required.**
 
-Copy PH4WSL1 to your computer and "Run as Administrator"
+Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
 * Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
 
@@ -10,27 +10,42 @@ Copy PH4WSL1 to your computer and "Run as Administrator"
 
 * Creates a  **/etc/pihole/setupVars.conf** file for an automated install 
 
-* Opens Windows Firewall ports for DNS and Pi-hole web admin
+* Adds exceptions to Windows Firewall for DNS and Pi-hole admin page
 
-* Includes a Scheduled Task to accomodate auto-start at boot.  Edit the task, under General tab check **Run whether user is logged on or not** and **Hidden** and in the Conditions tab uncheck **Start the task only if the computer is on AC power**
+* Includes a Scheduled Task **Pi-hole_Task.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
-Additional Info:
+**Requires the recent (August/Sept 2020) WSL update for Windows 10:**
+
+* 1809 - KB4571748
+* 1909 - KB4566116
+* 2004 - KB4571756
+
+**Additional Info:**
+
+* DHCP Server is disabled and only IPv4 is supported
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole_Reconfigure.cmd** in the Pi-hole install folder
 
 * To uninstall Pi-Hole, run **Pi-hole_Uninstall.cmd** in the Pi-hole install folder
 
-* DHCP Server is disabled and only IPv4 is supported
-
 Below is a console dump and (trimmed) screenshot of the install procedure:
 
-```Pi-hole 5.x for WSL
-------------------------------------------------------------------
-Pi-hole listener IP and subnet in CIDR format, ie: 192.168.3.99/24
-Respone: 10.74.0.253/24
+```
+Pi-hole for WSL
+---------------
+
+Location of 'Pi-hole' folder [Default = C:\Program Files]
+Response:
+
+Pi-hole listener IP and subnet in CIDR format, ie: 192.168.1.99/24
+Response: 10.74.0.253/24
 
 Port for Pi-hole. Port 80 is good if you don't have a webserver, or hit enter for default [8880]:
-Respone: 80
+Response: 80
+
+Install to: C:\Program Files\Pi-hole
+   Network: 10.74.0.253/24
+      Port: 80
 
 Fetching LxRunOffline...
 
@@ -39,10 +54,8 @@ Installing distro...
 Configuring distro, this can take a few minutes...
 
 Extracting templates from packages: 100%
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   145  100   145    0     0     44      0  0:00:03  0:00:03 --:--:--    74
-100  118k  100  118k    0     0  25065      0  0:00:04  0:00:04 --:--:--  139k
+
+
 
   [✓] Root user check
 
@@ -76,11 +89,7 @@ Extracting templates from packages: 100%
       Kernel update detected. If the install fails, please reboot and try again
   [i] Installer Dependency checks...
   [✓] Checking for dhcpcd5
-  [✓] Checking for git
-  [✓] Checking for iproute2
-  [✓] Checking for whiptail
-  [✓] Checking for dnsutils
-
+ 
   [✓] Supported OS detected
   [i] SELinux not detected
   [✗] Check for existing repository in /etc/.pihole
@@ -90,28 +99,6 @@ Extracting templates from packages: 100%
   [✗] Check for existing repository in /var/www/html/admin
   [i] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin...HEAD is now at a03d1bd Merge pull request #1498 from pi-hole/release/v5.1.1
   [✓] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin
-
-  [i] Main Dependency checks...
-  [✓] Checking for cron
-  [✓] Checking for curl
-  [✓] Checking for iputils-ping
-  [✓] Checking for lsof
-  [✓] Checking for netcat
-  [✓] Checking for psmisc
-  [✓] Checking for sudo
-  [✓] Checking for unzip
-  [✓] Checking for wget
-  [✓] Checking for idn2
-  [✓] Checking for sqlite3
-  [✓] Checking for libcap2-bin
-  [✓] Checking for dns-root-data
-  [✓] Checking for libcap2
-  [✓] Checking for lighttpd
-  [✓] Checking for php7.4-common
-  [✓] Checking for php7.4-cgi
-  [✓] Checking for php7.4-sqlite3
-  [✓] Checking for php7.4-xml
-  [✓] Checking for php7.4-intl
 
   [✓] Enabling lighttpd service to start on reboot...
   [✓] Creating user 'pihole'
@@ -198,6 +185,9 @@ Wait for launcher window to close then
 Press any key to continue . . .
 Pi-hole 5.x for WSL Install Complete!                  
 ```
-
+Expected installer output, truncated screen shot:
 
 ![PH4WSL](https://user-images.githubusercontent.com/33142753/94637641-7b3b9700-02ae-11eb-9d5f-e84579cccbdc.png)
+
+**Pi-hole-Reconfigure.cmd**
+![image](https://user-images.githubusercontent.com/33142753/94819292-76bdce00-03d5-11eb-96ae-452fe4631c99.png)
