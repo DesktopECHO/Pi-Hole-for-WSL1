@@ -37,7 +37,7 @@ ECHO.
 ECHO.Installing Ubuntu 20.04...
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
 ECHO. 
-ECHO.Slimming footprint... 
+ECHO.Shrinking footprint... 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; mv /usr/bin/sleep /usr/bin/sleep.wsl ; cp /usr/lib/klibc/bin/sleep /usr/bin/sleep"
 %GO% "apt-get -qq --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" >> "%PRGF%\Pi-hole_Install.log"
@@ -82,7 +82,7 @@ ECHO @WSLCONFIG /T Pi-hole                                  >> "%PRGF%\Pi-hole_U
 ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole               >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @RD /S /Q "%PRGF%"                                     >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO ---------------------------------------------------------------------------
-SCHTASKS /CREATE /RU %USERNAME% /RL HIGHEST /SC ONSTART /TN "Pi-hole for WSL" /TR '"%PRGF%\Pi-hole_Task.cmd"' /F
+SCHTASKS /CREATE /RU %USERNAME% /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '"%PRGF%\Pi-hole_Task.cmd"' /F
 START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd"  
 ECHO Pi-hole for Windows Installed to %PRGF%
 START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
