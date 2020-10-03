@@ -89,6 +89,6 @@ ECHO.
 PING -n 6 127.0.0.1 > NUL
 ECHO ------------------------------------------------------------
 ECHO Pi-hole for Windows Installed to %PRGF%
-PAUSE
 START http://%COMPUTERNAME%:%PORT%/admin
+PAUSE
 :ENDSCRIPT
