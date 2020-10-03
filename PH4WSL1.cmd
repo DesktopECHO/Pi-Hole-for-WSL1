@@ -32,7 +32,7 @@ POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Ubuntu.zip' -DestinationPa
 ECHO.
 ECHO.Fetching LxRunOffline...
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%"
-POWERSHELL.EXE -Command "Start-BitsTransfer -source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/LxRunOffline.exe -destination '%PRGF%\LxRunOffline.exe'"
+POWERSHELL.EXE -Command "wget https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/LxRunOffline.exe -UseBasicParsing -OutFile '%PRGF%\LxRunOffline.exe'"
 ECHO.
 ECHO.Installing Ubuntu 20.04...
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
