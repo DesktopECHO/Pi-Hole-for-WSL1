@@ -82,7 +82,7 @@ ECHO @WSLCONFIG /T Pi-hole                                  >> "%PRGF%\Pi-hole_U
 ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole               >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO @RD /S /Q "%PRGF%"                                     >> "%PRGF%\Pi-hole_Uninstall.cmd"
 ECHO ---------------------------------------------------------------------------
-SCHTASKS /CREATE /RU %USERNAME% /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '"%PRGF%\Pi-hole_Task.cmd"' /F
+SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '"%PRGF%\Pi-hole_Task.cmd"' /F
 START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd"  
 ECHO Pi-hole for Windows Installed to %PRGF%
 START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
