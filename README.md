@@ -1,6 +1,6 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 
-**This scripts performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) -- No Linux, Container, or Virtualization expertise required.**
+**This script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) -- No Linux, Container, or Virtualization expertise required.**
 
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
@@ -24,7 +24,7 @@ Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH
 
 **Additional Info:**
 
-* DHCP Server is disabled and only IPv4 is supported
+* DHCP Server is disabled
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole_Reconfigure.cmd** in the Pi-hole install folder
 
