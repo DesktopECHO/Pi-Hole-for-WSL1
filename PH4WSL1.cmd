@@ -33,7 +33,7 @@ POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Ubuntu.zip' -DestinationPa
 
 ECHO.
 ECHO.Fetching LxRunOffline...
-MKDIR %PRGF% & %PRGF:~0,1%: & CD %PRGF%
+MKDIR "%PRGF%" & %PRGF:~0,1%: & CD "%PRGF%"
 POWERSHELL.EXE -Command "wget https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/LxRunOffline.exe -UseBasicParsing -OutFile '%PRGF%\LxRunOffline.exe'"
 
 ECHO.
@@ -45,7 +45,7 @@ ECHO.Configuring distro, this can take a few minutes...
 ECHO. 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
-%GO% "apt-get update ; apt-get -y --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get -y dist-upgrade" > "%PRGF%\Pi-hole_Install.log"
+%GO% "apt-get -qq --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update ; apt-get -y dist-upgrade" > "%PRGF%\Pi-hole_Install.log"
 %GO% "apt-get -y install unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" >> "%PRGF%\Pi-hole_Install.log"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "echo BLOCKING_ENABLED=true      >  /etc/pihole/setupVars.conf"
@@ -66,7 +66,7 @@ NetSH AdvFirewall Firewall add rule name="WSL Pi-hole Admin Page" dir=in action=
 NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53      >> "%PRGF%\Pi-hole_Install.log"
 NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53      >> "%PRGF%\Pi-hole_Install.log"
 
-ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /dev/nul"                   >  "%PRGF%\Pi-hole_Task.cmd" 
+ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /dev/null"                  >  "%PRGF%\Pi-hole_Task.cmd" 
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf" >> "%PRGF%\Pi-hole_Task.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service restart ; done"       >> "%PRGF%\Pi-hole_Task.cmd"
 
