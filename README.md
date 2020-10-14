@@ -2,6 +2,8 @@
 
 **This script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) -- No Linux, Container, or Virtualization expertise required.**
 
+
+
 Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator"
 
 **If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation -- see below for required KB update.  Uninstall Pi-hole, update your machine and try again**
@@ -187,9 +189,12 @@ Wait for launcher window to close then
 Press any key to continue . . .
 Pi-hole 5.x for WSL Install Complete!                  
 ```
-Expected installer output, truncated screen shot:
-
+**Expected installer output, truncated screen shot:**
 ![PH4WSL](https://user-images.githubusercontent.com/33142753/94637641-7b3b9700-02ae-11eb-9d5f-e84579cccbdc.png)
 
-**Pi-hole-Reconfigure.cmd**
+**Pi-hole-Reconfigure.cmd:**
 ![image](https://user-images.githubusercontent.com/33142753/94819292-76bdce00-03d5-11eb-96ae-452fe4631c99.png)
+
+**Install Complete:**
+![image](https://user-images.githubusercontent.com/33142753/96044423-c75a1000-0e46-11eb-8140-998a7f3ae2dc.png)
+
