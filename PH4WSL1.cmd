@@ -40,10 +40,10 @@ ECHO.
 ECHO.Shrinking footprint... 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; mv /usr/bin/sleep /usr/bin/sleep.wsl ; cp /usr/lib/klibc/bin/sleep /usr/bin/sleep"
-%GO% "apt-get -qq --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" >> "%PRGF%\Pi-hole_Install.log"
+%GO% "apt-get -y --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\Pi-hole_Trim.log"
 ECHO.
 ECHO.Installing dependencies...
-%GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" >> "%PRGF%\Pi-hole_Install.log"
+%GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > "%PRGF%\Pi-hole_InstallDeps.log"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "echo BLOCKING_ENABLED=true      >  /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_INTERFACE=eth0      >> /etc/pihole/setupVars.conf"
@@ -62,9 +62,9 @@ ECHO.
 %GO% "sed -i 's/= 80/= %PORT%/g' /etc/lighttpd/lighttpd.conf"
 %GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid"
 
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole Admin Page" dir=in action=allow protocol=TCP localport=%PORT%  >> "%PRGF%\Pi-hole_Install.log"
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53      >> "%PRGF%\Pi-hole_Install.log"
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53      >> "%PRGF%\Pi-hole_Install.log"
+NetSH AdvFirewall Firewall add rule name="WSL Pi-hole Admin Page" dir=in action=allow protocol=TCP localport=%PORT%  > NUL
+NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53      > NUL
+NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53      > NUL
 
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /dev/null"                      >  "%PRGF%\Pi-hole_Task.cmd" 
 ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"     >> "%PRGF%\Pi-hole_Task.cmd"
@@ -87,7 +87,7 @@ SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windo
 PAUSE
 START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd"  
 ECHO Pi-hole for Windows Installed to %PRGF%
-START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
+REM START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
 START http://%COMPUTERNAME%:%PORT%/admin
 ECHO.
 :ENDSCRIPT
