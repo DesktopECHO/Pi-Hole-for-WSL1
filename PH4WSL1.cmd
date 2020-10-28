@@ -1,9 +1,9 @@
 @ECHO OFF
 NET SESSION >NUL 2>&1
  if %errorLevel% == 0 (
-      echo Administrative permissions confirmed...
+      ECHO Administrative permissions confirmed...
   ) else (
-      echo You need to run this command with administrative rights.  User Account Control enabled?
+      ECHO You need to run this command with administrative rights.  User Account Control enabled?
       pause
       goto ENDSCRIPT
   )
@@ -21,7 +21,7 @@ ECHO.
 ECHO.Pi-hole listener IP and subnet in CIDR format, ie: 192.168.1.99/24
 SET /p IPSM=Response: 
 ECHO.
-ECHO.Port for Pi-hole. Port 80 is good if you don't have a webserver, or hit enter for default [8880]: 
+ECHO.Port for Pi-hole. Port 80 is okay if you don't have a webserver, or hit enter for default [8880]: 
 SET PORT=8880& SET /p PORT=Response: 
 ECHO.
 ECHO.Install to: %PRGF% 
@@ -86,7 +86,9 @@ SET STTR=%PRGF%\Pi-hole_Task.cmd
 SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '"%STTR%"' /F
 PAUSE
 START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd"  
-ECHO Pi-hole for Windows Installed to %PRGF%
+ECHO Pi-hole for Windows Installed in %PRGF%
+(ECHO.Input Specifications && ECHO.Path:    %PRGF% && ECHO.Folder:  %PRGP% && ECHO.Network: %IPSM% && ECHO.Port:    %PORT% && ECHO.Temp:    %TEMP% && ECHO.) > Pi-hole_Inputs.log
+DIR "%PRGF%" >> Pi-hole_Inputs.log
 REM START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
 START http://%COMPUTERNAME%:%PORT%/admin
 ECHO.
