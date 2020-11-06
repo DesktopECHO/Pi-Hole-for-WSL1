@@ -8,88 +8,106 @@ NET SESSION >NUL 2>&1
       goto ENDSCRIPT
   )
 POWERSHELL.EXE -command "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+SET PORT=80
+START /MIN /WAIT "Check for Open Port" "POWERSHELL" "-COMMAND" "Get-NetTCPConnection -LocalPort 80 > '%TEMP%\PortCheck.tmp'"
+for /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
+if %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
 ECHO.Pi-hole for Windows
 ECHO.-------------------
 ECHO.
-ECHO Location of 'Pi-hole' folder [Default = %PROGRAMFILES%] 
-SET PRGP=%PROGRAMFILES%& SET /p PRGP=Response: 
+SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set 'Pi-hole' install location or hit enter for default [%PROGRAMFILES%] -> "
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" GOTO INPUTS
 ECHO.
-ECHO.Pi-hole listener IP and subnet in CIDR format, ie: 192.168.1.99/24
-SET /p IPSM=Response: 
-ECHO.
-ECHO.Port for Pi-hole. Port 80 is okay if you don't have a webserver, or hit enter for default [8880]: 
-SET PORT=8880& SET /p PORT=Response: 
-ECHO.
-ECHO.Install to: %PRGF% 
-ECHO.   Network: %IPSM%
-ECHO.      Port: %PORT%
+ECHO.Pi-hole will be installed in [%PRGF%]
+ECHO.Web Administration will listen on port %PORT%
+PAUSE 
 IF NOT EXIST %TEMP%\Ubuntu.zip POWERSHELL.EXE -Command "Start-BitsTransfer -source https://aka.ms/wslubuntu2004 -destination '%TEMP%\Ubuntu.zip'"
 POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Ubuntu.zip' -DestinationPath '%TEMP%' -force"
-ECHO.
-ECHO.Fetching LxRunOffline...
-%PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%"
+%PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
+FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
+ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
+ECHO @ECHO Uninstall Pi-hole?                       >  "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @PAUSE                                         >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @COPY /Y "%PRGF%\LxRunOffline.exe" "%TEMP%"    >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @SCHTASKS /Delete /TN:"Pi-hole for Windows" /F >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @CLS                                           >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @ECHO Uninstalling Pi-hole...                  >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @%PRGF:~0,1%:                                  >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @CD "%PRGF%\.."                                >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @WSLCONFIG /T Pi-hole                          >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole       >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @RD /S /Q "%PRGF%"                             >> "%PRGF%\Pi-hole Uninstall.cmd"
 POWERSHELL.EXE -Command "wget https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/LxRunOffline.exe -UseBasicParsing -OutFile '%PRGF%\LxRunOffline.exe'"
 ECHO.
 ECHO.Installing Ubuntu 20.04...
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
 ECHO. 
-ECHO.Shrinking footprint... 
+ECHO.Compacting distro... 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; mv /usr/bin/sleep /usr/bin/sleep.wsl ; cp /usr/lib/klibc/bin/sleep /usr/bin/sleep"
-%GO% "apt-get -y --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\Pi-hole_Trim.log"
+%GO% "apt-get -y --purge remove *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 ECHO.
-ECHO.Installing dependencies...
-%GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > "%PRGF%\Pi-hole_InstallDeps.log"
+ECHO.Installing dependencies, please wait...
+%GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
-%GO% "echo BLOCKING_ENABLED=true      >  /etc/pihole/setupVars.conf"
-%GO% "echo PIHOLE_INTERFACE=eth0      >> /etc/pihole/setupVars.conf"
-%GO% "echo IPV4_ADDRESS=%IPSM%        >> /etc/pihole/setupVars.conf"
+%GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
+%GO% "IPF=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
+%GO% "echo IPV4_ADDRESS=%IPC%         >  /etc/pihole/setupVars.conf"
+%GO% "echo PIHOLE_INTERFACE=%IPF%     >> /etc/pihole/setupVars.conf"
+%GO% "echo BLOCKING_ENABLED=true      >> /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_DNS_1=8.8.8.8       >> /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_DNS_2=8.8.4.4       >> /etc/pihole/setupVars.conf"
 %GO% "echo QUERY_LOGGING=true         >> /etc/pihole/setupVars.conf"
 %GO% "echo INSTALL_WEB_SERVER=true    >> /etc/pihole/setupVars.conf"
 %GO% "echo INSTALL_WEB_INTERFACE=true >> /etc/pihole/setupVars.conf"
 %GO% "echo LIGHTTPD_ENABLED=true      >> /etc/pihole/setupVars.conf"
+%GO% "echo DNSMASQ_LISTENING=all      >> /etc/pihole/setupVars.conf"
+%GO% "echo WEBPASSWORD=               >> /etc/pihole/setupVars.conf"
+%GO% "echo interface %IPF%            >  /etc/dhcpcd.conf"
+%GO% "echo static ip_address= %IPC%   >> /etc/dhcpcd.conf"
+NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO.
 ECHO.Launching Pi-hole installer...
+ECHO.
 %GO% "curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended"
+%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php"
+%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"
+%GO% "sed -i 's/= 80/= %PORT%/g' /etc/lighttpd/lighttpd.conf"
+%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"
+%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"
+%GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid"
 ECHO.
 %GO% "echo Web Interface Admin ; pihole -a -p"
-%GO% "sed -i 's/= 80/= %PORT%/g' /etc/lighttpd/lighttpd.conf"
-%GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid"
-
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole Admin Page" dir=in action=allow protocol=TCP localport=%PORT%  > NUL
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53      > NUL
-NetSH AdvFirewall Firewall add rule name="WSL Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53      > NUL
-
-ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -qq remove dhcpcd5 > /dev/null"                      >  "%PRGF%\Pi-hole_Task.cmd" 
-ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"     >> "%PRGF%\Pi-hole_Task.cmd"
-ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service restart ; done ; sleep 3" >> "%PRGF%\Pi-hole_Task.cmd"
-ECHO @EXIT                                                                                                    >> "%PRGF%\Pi-hole_Task.cmd"
-ECHO @WSLCONFIG /T Pi-hole                                      >  "%PRGF%\Pi-hole_Reconfigure.cmd"
-ECHO @"%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "pihole -r"     >> "%PRGF%\Pi-hole_Reconfigure.cmd"
-ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd" >> "%PRGF%\Pi-hole_Reconfigure.cmd"
-ECHO @START http://%COMPUTERNAME%:%PORT%/admin                  >> "%PRGF%\Pi-hole_Reconfigure.cmd"
-ECHO @ECHO Uninstall Pi-hole?                               >  "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @PAUSE                                                 >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @COPY /Y "%PRGF%\LxRunOffline.exe" "%TEMP%"            >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @CD "%USERPROFILE%"		                    >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @WSLCONFIG /T Pi-hole                                  >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole               >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO @RD /S /Q "%PRGF%"                                     >> "%PRGF%\Pi-hole_Uninstall.cmd"
-ECHO ---------------------------------------------------------------------------
-SET STTR=%PRGF%\Pi-hole_Task.cmd
-SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '"%STTR%"' /F
-PAUSE
-START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole_Task.cmd"  
+ECHO @WSLCONFIG /T Pi-hole                                                                                     > "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @ECHO [Pi-Hole Launcher]                                                                                 >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null"                                                           >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"   >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @EXIT                                                                                                    >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @WSLCONFIG /T Pi-hole                                                                                     > "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "pihole -r"                                                                                        >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php" >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"                                >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                              >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                             >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                           >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO --------------------------------------------------------------------------------
+SET STTR="%PRGF%\Pi-hole Launcher.cmd"
+SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
+START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"  
 ECHO Pi-hole for Windows Installed in %PRGF%
-(ECHO.Input Specifications && ECHO.Path:    %PRGF% && ECHO.Folder:  %PRGP% && ECHO.Network: %IPSM% && ECHO.Port:    %PORT% && ECHO.Temp:    %TEMP% && ECHO.) > Pi-hole_Inputs.log
-DIR "%PRGF%" >> Pi-hole_Inputs.log
-REM START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole_Reconfigure.cmd until this completes..." "%PRGF%\LxRunOffline.exe" r -n Pi-hole -c "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
+(ECHO.Input Specifications: && ECHO.&& ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole Inputs.log"
+DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole Inputs.log"
+REM ## Uncomment the following line to update Ubuntu
+REM START /MIN "Installing Ubuntu 20.04 updates in background, do not run Pi-hole Configuration.cmd until this completes..." %GO% "apt-get -y dist-upgrade ; apt-get purge ; apt-get clean"
+CD .. & PAUSE
 START http://%COMPUTERNAME%:%PORT%/admin
 ECHO.
 :ENDSCRIPT
