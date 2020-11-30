@@ -38,11 +38,11 @@ POWERSHELL.EXE -Command "wget https://github.com/DesktopECHO/Pi-Hole-for-WSL1/ra
 ECHO.
 ECHO|SET /p="This will take a few minutes:  Installing Ubuntu 20.04 "
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
-ECHO|SET /p="-> Compacting the installation " 
+ECHO|SET /p="-> Compacting the install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; mv /usr/bin/sleep /usr/bin/sleep.wsl ; cp /usr/lib/klibc/bin/sleep /usr/bin/sleep"
 %GO% "apt-get -y purge *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\logs\Pi-hole Compact Stage.log"
-ECHO.-^> Installing dependencies
+ECHO.-^> Install dependencies
 %GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
