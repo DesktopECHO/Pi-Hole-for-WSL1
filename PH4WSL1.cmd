@@ -9,7 +9,7 @@ IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
 ECHO.--------------------- & ECHO. Pi-hole for Windows & ECHO.--------------------- & ECHO.
-SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set 'Pi-hole' install location or hit enter for default [%PROGRAMFILES%] -> "
+SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" (ECHO. & ECHO Pi-hole folder already exists, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
 WSL.EXE -d Pi-hole -e . > "%TEMP%\InstCheck.tmp"
@@ -40,8 +40,6 @@ ECHO|SET /p="This will take a few minutes:  Installing Ubuntu 20.04 "
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting the install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
-%GO% "wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/phlsof ; chmod +x ./phlsof ; mv ./phlsof /usr/local/bin/"
-%GO% "sed -i 's*# and*alias lsof=/usr/local/bin/phlsof\n#*g' /etc/profile ; "
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
 %GO% "apt-get -y purge *vim* *sound* *alsa* *libgl* *pulse* mount dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 ECHO.-^> Install dependencies
@@ -68,27 +66,49 @@ NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allo
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 %GO% "curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended"
-%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php"
-%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"
-%GO% "sed -i 's/= 80/= %PORT%/g' /etc/lighttpd/lighttpd.conf"
-%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"
-%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"
-%GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list"
+REM Remove DHCP server options and fix WWW page
+%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'         /var/www/html/admin/settings.php"
+%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                        /var/www/html/admin/settings.php"
+%GO% "sed -i 's#if ($pistatus === \"1\")#if ($pistatus === \"-1\")#g'         /var/www/html/admin/scripts/pi-hole/php/header.php"
+%GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")#g' /var/www/html/admin/scripts/pi-hole/php/header.php"
+REM Reset WWW port
+%GO% "sed -i 's/= 80/= %PORT%/g'                                              /etc/lighttpd/lighttpd.conf"
+REM Fix debug log for WSL1 
+%GO% "sed -i 's* -f 3* -f 4*g'                                                /opt/pihole/piholeDebug.sh"
+%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                               /opt/pihole/piholeDebug.sh"
+REM Workaround lsof use on WSL1
+%GO% "sed -i 's#lsof -Pni:53#netstat.exe -abno | grep \":53 \"#g'             /usr/local/bin/pihole"
+%GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g'             /usr/local/bin/pihole"  
+%GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                                /usr/local/bin/pihole"
+%GO% "sed -i 's#IPv4.*TCP#TCP    0.0.0.0:53#g'                                /usr/local/bin/pihole" 
+%GO% "sed -i 's#IPv6.*UDP#UDP    \\[::\\]:53#g'                               /usr/local/bin/pihole" 
+%GO% "sed -i 's#IPv6.*TCP#TCP    \\[::\\]:53#g'                               /usr/local/bin/pihole" 
+%GO% "pihole status"          
+%GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list ; pihole restartdns"
 %GO% "echo ; echo -------------------------------------------------------------------------------- ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
-ECHO @WSLCONFIG /T Pi-hole                                                                                     > "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @ECHO [Pi-Hole Launcher]                                                                                 >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null ; apt-get purge ; apt-get clean"                           >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"   >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @EXIT                                                                                                    >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @WSLCONFIG /T Pi-hole                                                                                     > "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "pihole -r"                                                                                        >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php" >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"                                >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                              >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                             >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                           >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @ECHO [Pi-Hole Launcher]                                                                                                           >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "apt-get -qq purge dhcpcd5 > /dev/null 2>&1 ; apt-get clean"                                                                 >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "pihole -r "                                                                                                                 >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -abno | grep \":53 \"#g'  /usr/local/bin/pihole"                                         >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g' /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g' /usr/local/bin/pihole"                                                             >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#IPv4.*TCP#TCP    0.0.0.0:53#g' /usr/local/bin/pihole"                                                             >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#IPv6.*UDP#UDP    \\[::\\]:53#g' /usr/local/bin/pihole"                                                            >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#IPv6.*TCP#TCP    \\[::\\]:53#g' /usr/local/bin/pihole"                                                            >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php"                           >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"                                                                    >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                                                        >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                                                       >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#if ($pistatus === \"1\")#if ($pistatus === \"-1\")#g'         /var/www/html/admin/scripts/pi-hole/php/header.php" >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")#g' /var/www/html/admin/scripts/pi-hole/php/header.php" >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "pihole status"
+ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                                                     >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO --------------------------------------------------------------------------------
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
 SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
