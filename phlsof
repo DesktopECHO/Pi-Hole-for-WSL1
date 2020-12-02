@@ -1,9 +1,0 @@
-#!/bin/bash
-netstat.exe -abno | grep ":53 " >        /tmp/phlsof
-sed -i 's/UDP    0.0.0.0:53/IPv4.*UDP/g' /tmp/phlsof
-sed -i 's/TCP    0.0.0.0:53/IPv4.*TCP/g' /tmp/phlsof
-sed -i 's/ TCP/IPv6.*TCP/g'              /tmp/phlsof
-sed -i 's/ UDP/IPv6.*UDP/g'              /tmp/phlsof
-sed -i 's/    / pihole /'                /tmp/phlsof
-sed -i 's/LISTENING/listening/'          /tmp/phlsof
-cat                                      /tmp/phlsof
