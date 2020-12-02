@@ -93,7 +93,7 @@ ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_serv
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "pihole -r "                                                                                                                 >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -abno | grep \":53 \"#g  /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -abno | grep \":53 \"#g' /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g' /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                    /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#IPv4.*TCP#TCP    0.0.0.0:53#g'                    /usr/local/bin/pihole"                                          >> "%PRGF%\Pi-hole Configuration.cmd"
