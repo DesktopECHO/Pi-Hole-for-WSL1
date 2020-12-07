@@ -2,7 +2,7 @@
 
 **This install script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Linux, Container, or Virtualization expertise required.**  
 
-**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and can run on older CPU's without VT support or on a VPS that doesn't pass-through virtualization support - Even an old machine with 1 CPU core and 1GB of RAM will work.**
+**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and can run on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end machine with 1 CPU core and 1 GB of RAM has been tested to work.**
 
 **You can use this to block ads on your entire network but real/dedicated hardware may be a better idea in that situation.  Its primary use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
 
@@ -22,26 +22,27 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* Includes a Scheduled Task **Pi-hole Launcher.cmd** to allow auto-start at boot, before logon.  
-  Configure this by opening Windows Task Scheduler and edit the "Pi-hole" task.  
-  On the *General* tab check **Run whether user is logged on or not** and **Hidden**  
-    On the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
+* Includes a Scheduled Task to accomodate auto-start at boot, before logon.  
+  Configure this by opening Windows Task Scheduler (taskschd.msc) and edit the "Pi-hole for Windows" task.  
+   On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
+     On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
-**Requires the recent (August/Sept 2020) WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  Uninstall Pi-hole, update your machine and try again**
+**Requires the recent (August/Sept 2020) WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs uninstall Pi-hole, update your machine and try again.  The minimum required updates are as follows:**
 
 * 1809 - KB4571748
 * 1909 - KB4566116
 * 2004 - KB4571756
+* 20H2 - Included in OS
 
 **Additional Info:**
 
 * DHCP Server is disabled in the UI
 
-* IPv6 works  
+* IPv6 is now working as well as IPv4  
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder
 
-* To uninstall Pi-Hole, run **Pi-hole Uninstall.cmd** in the Pi-hole install folder
+* To uninstall Pi-Hole go to the Pi-hole install folder, right-click **Pi-hole Uninstall.cmd** and click **Run As Administrator.**  Backup your configuration via the Pi-hole web interface if you plan on re-installing. 
 
 **Trimmed console dump and screenshots:**
 
