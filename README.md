@@ -4,7 +4,7 @@
 
 **Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and can run on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end machine with 1 CPU core and 1 GB of RAM has been tested to work.**
 
-**You can use this to block ads on your entire network but real/dedicated hardware may be a better idea in that situation.  Its primary use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
+**You can use this to block ads on your entire network but real/dedicated hardware may be a better idea in that situation.  Pi-hole for Windows' primary use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
 
 **INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
 
