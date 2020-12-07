@@ -23,7 +23,7 @@ POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Ubuntu.zip' -DestinationPa
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
-ECHO @ECHO Uninstall Pi-hole?                                      >  "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @ECHO Ensure you run this as administrator, uninstall Pi-hole?>  "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @PAUSE                                                        >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @COPY /Y "%PRGF%\LxRunOffline.exe" "%TEMP%"                   >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @SCHTASKS /Delete /TN:"Pi-hole for Windows" /F                >> "%PRGF%\Pi-hole Uninstall.cmd"
