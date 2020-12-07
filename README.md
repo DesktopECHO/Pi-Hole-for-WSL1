@@ -1,21 +1,26 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 
-**This script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) -- No Linux, Container, or Virtualization expertise required.**
+**This install script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Linux, Container, or Virtualization expertise required.**  
 
+**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and can run on older CPU's without VT support or on a VPS that doesn't pass-through virtualization support - Even an old machine with 1 CPU core and 1GB of RAM will work.**
 
-Copy [PH4WSL1.cmd](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer and "Run as Administrator."  
+**You can use this to block ads on your entire network but real/dedicated hardware may be a better idea in that situation.  Its primary use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
 
-Ubuntu download and configuration completes in 5-20 minutes, depending on hardware.
+**INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
 
-* Enables WSL1 and downloads Ubuntu 20.04 from Microsoft 
+The Ubuntu download and configuration steps complete in 5-20 minutes, depending on your hardware.  The script will:
 
-* Installs and Configures distro, downloads and executes Pi-hole installer 
+* Enable WSL1 and download Ubuntu 20.04 from Microsoft 
 
-* Creates a  **/etc/pihole/setupVars.conf** file for an automated install
+* Install and Configure the distro
 
-* Patches Pi-hole installer to use **netstat.exe** instead of **lsof** 
+* Download and execute the latest Pi-hole installer 
 
-* Adds exceptions to Windows Firewall for DNS and Pi-hole admin page
+* Create a  **/etc/pihole/setupVars.conf** file for an automated install
+
+* Patche Pi-hole installer to use **netstat.exe** instead of **lsof** 
+
+* Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
 * Includes a Scheduled Task **Pi-hole Launcher.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
