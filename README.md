@@ -1,6 +1,6 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 
-**By utilizing the Windows Subsystem for Linux, Pi-hole runs on your system just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.**  
+**By utilizing the Windows Subsystem for Linux, Pi-hole can run on your Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.**  
 
 **Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and runs well on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end system with 1 CPU core and 1 GB of RAM has been tested to work.**
 
