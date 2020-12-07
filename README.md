@@ -18,11 +18,14 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 * Create a  **/etc/pihole/setupVars.conf** file for an automated install
 
-* Patche Pi-hole installer to use **netstat.exe** instead of **lsof** 
+* Patch Pi-hole installer to use **netstat.exe** instead of **lsof**, along with other fix-ups for WSL1 compatibility.
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* Includes a Scheduled Task **Pi-hole Launcher.cmd** to allow auto-start at boot, before logon.  Edit the task, under *General* tab check **Run whether user is logged on or not** and **Hidden** and (if needed) in the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
+* Includes a Scheduled Task **Pi-hole Launcher.cmd** to allow auto-start at boot, before logon.  
+  Configure this by opening Windows Task Scheduler and edit the "Pi-hole" task.  
+  On the *General* tab check **Run whether user is logged on or not** and **Hidden**  
+    On the *Conditions* tab uncheck **Start the task only if the computer is on AC power**
 
 **Requires the recent (August/Sept 2020) WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  Uninstall Pi-hole, update your machine and try again**
 
