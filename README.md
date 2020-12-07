@@ -36,9 +36,9 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 **Additional Info:**
 
-* DHCP Server is disabled in the UI
+* DHCP Server is not supported and has been removed from the UI
 
-* IPv6 is now working as well as IPv4  
+* IPv6 DNS now works in addition to IPv4  
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder
 
