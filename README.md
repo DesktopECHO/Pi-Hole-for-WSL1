@@ -2,9 +2,9 @@
 
 **This install script performs an automated install of Pi-hole 5.x on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Linux, Container, or Virtualization expertise required.**  
 
-**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and can run on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end machine with 1 CPU core and 1 GB of RAM has been tested to work.**
+**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and runs well on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end system with 1 CPU core and 1 GB of RAM has been tested to work.**
 
-**You can use this to block ads on your entire network but real/dedicated hardware may be a better idea in that situation.  Pi-hole for Windows' primary use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
+**You can use this to block ads on your entire network but real/dedicated hardware may be more advisable that situation.  Pi-hole for Windows' original use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
 
 **INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
 
@@ -22,8 +22,8 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* Includes a Scheduled Task to accomodate auto-start at boot, before logon.  
-  Configure this by opening Windows Task Scheduler (taskschd.msc) and edit the "Pi-hole for Windows" task.  
+* Includes a Scheduled Task to accomodate **auto-start at boot, before logon.**  
+  **Configure this** by opening Windows Task Scheduler (taskschd.msc) and edit the **Pi-hole for Windows** task.  
    On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
      On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
