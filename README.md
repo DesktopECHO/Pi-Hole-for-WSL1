@@ -27,7 +27,7 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
    On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
      On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
-**Requires the recent (August/Sept 2020) WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs uninstall Pi-hole, update your machine and try again.  The minimum required updates are as follows:**
+**Requires August/September 2020 WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs uninstall Pi-hole, update your machine and try again.  The minimum required updates are as follows:**
 
 * 1809 - KB4571748
 * 1909 - KB4566116
@@ -42,7 +42,7 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder
 
-* To uninstall Pi-Hole go to the Pi-hole install folder, right-click **Pi-hole Uninstall.cmd** and click **Run As Administrator.**  Backup your configuration via the Pi-hole web interface if you plan on re-installing. 
+* To uninstall Pi-Hole go to the Pi-hole install folder, right-click **Pi-hole Uninstall.cmd** and click **Run As Administrator.**  If you plan on reinstalling, remember to first export your configuration via the Pi-hole web interface. 
 
 **Trimmed console dump and screenshots:**
 
