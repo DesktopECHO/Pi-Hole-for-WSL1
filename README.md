@@ -189,12 +189,11 @@ Wait for launcher window to close then
 Press any key to continue . . .
 Pi-hole 5.x for WSL Install Complete!                  
 ```
-**Expected installer output, truncated screen shot:**
-![PH4WSL](https://user-images.githubusercontent.com/33142753/94637641-7b3b9700-02ae-11eb-9d5f-e84579cccbdc.png)
+**Installer run:**
+![PH4WSL](https://user-images.githubusercontent.com/33142753/101309416-c16b2480-3822-11eb-95ab-e1e2e1953adc.png)
 
-**Pi-hole-Reconfigure.cmd:**
-![image](https://user-images.githubusercontent.com/33142753/94819292-76bdce00-03d5-11eb-96ae-452fe4631c99.png)
+**Install Folder:**
+![image](https://user-images.githubusercontent.com/33142753/101309475-e8295b00-3822-11eb-9a84-d22b74df849e.PNG)
 
 **Install Complete:**
-![image](https://user-images.githubusercontent.com/33142753/96044423-c75a1000-0e46-11eb-8140-998a7f3ae2dc.png)
-
+![image](https://user-images.githubusercontent.com/33142753/101309494-f4151d00-3822-11eb-8521-66a96279add0.PNG)
