@@ -1,10 +1,12 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
+Note: There is no endorsement or partnership between this page and [**©Pi-hole, LLC**](https://pi-hole.net)  
+I take no credit for their most excellent adblocking DNS server, this is just a script that convinces it to run on Windows.
 
-**By utilizing the Windows Subsystem for Linux it's possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.**  
+By utilizing the Windows Subsystem for Linux it's possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.
 
-**Pi-hole for Windows uses a fraction of system resources when compared with other solutions, and runs well on older CPU's without VT support or on a VPS without pass-through virtualization support.  A low-end system with 1 CPU core and 1 GB of RAM has been tested to work.**
+This approach uses fewer resources than the better-known hypervisor/container solution, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows 8 tablet or Atom-powered HDMI stick with 1GB RAM, this will work.
 
-**You can use this to block ads on your entire network but real/dedicated hardware may be more advisable in that situation. Pi-hole for Windows' original use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before committing to a hardware purchase.**
+You can use this to block ads for your entire network but real/dedicated hardware may be more advisable in that situation. Pi-hole for Windows' original use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before comitting to hardware.
 
 **INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
 
@@ -12,18 +14,18 @@ The Ubuntu download and configuration steps complete in 5-20 minutes, depending 
 
 * Enable WSL1 and download Ubuntu 20.04 from Microsoft 
 
-* Install and Configure the distro
+* Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Ubuntu 20.04
 
-* Download and execute the latest Pi-hole installer 
+* Perform gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 
-* Create a  **/etc/pihole/setupVars.conf** file for an automated install
+* Run the [installer](https://github.com/pi-hole/pi-hole/#one-step-automated-install) from Pi-hole©
 
 * Patch Pi-hole installer to use **netstat.exe** instead of **lsof**, along with other fix-ups for WSL1 compatibility.
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
 * Includes a Scheduled Task to accomodate **auto-start at boot, before logon.**  
-  **Configure this** by opening Windows Task Scheduler (taskschd.msc) and edit the **Pi-hole for Windows** task.  
+  **Configure this** by opening Windows Task Scheduler (taskschd.msc) and right-click the **Pi-hole for Windows** task, click edit.  
    On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
      On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
