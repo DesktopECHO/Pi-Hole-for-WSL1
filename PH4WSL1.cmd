@@ -39,8 +39,8 @@ ECHO @WSLCONFIG /T Pi-hole                                         >> "%PRGF%\Pi
 ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole                      >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @RD /S /Q "%PRGF%"                                            >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO.
-ECHO This will take a few minutes...
-ECHO|SET /p="Installing LXrunOffline.exe Distribuion Manager and Ubuntu 20.04"
+ECHO This will take a few minutes to complete...
+ECHO|SET /p="Installing LXrunOffline.exe and Ubuntu 20.04 "
 POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.5.0/LxRunOffline-v3.5.0-msvc.zip -UseBasicParsing -OutFile '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' ; Expand-Archive -Path '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' -DestinationPath '%PRGF%'" > NUL
 START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting the install " 
