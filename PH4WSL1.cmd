@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20201207 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20210522 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" (ECHO. & ECHO Pi-hole folder already exists, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
@@ -18,8 +18,8 @@ IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall 
 ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
 PAUSE 
-IF NOT EXIST %TEMP%\Ubuntu.zip POWERSHELL.EXE -Command "Start-BitsTransfer -source https://aka.ms/wslubuntu2004 -destination '%TEMP%\Ubuntu.zip'"
-POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Ubuntu.zip' -DestinationPath '%TEMP%' -force"
+IF NOT EXIST %TEMP%\Debian.zip POWERSHELL.EXE -Command "Start-BitsTransfer -source https://aka.ms/wsl-debian-gnulinux -destination '%TEMP%\Debian.zip'"
+POWERSHELL.EXE -Command "Expand-Archive -Path '%TEMP%\Debian.zip' -DestinationPath '%TEMP%' -force"
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -40,31 +40,33 @@ ECHO @"%TEMP%\LxRunOffline.exe" ur -n Pi-hole                      >> "%PRGF%\Pi
 ECHO @RD /S /Q "%PRGF%"                                            >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO.
 ECHO This will take a few minutes to complete...
-ECHO|SET /p="Installing LXrunOffline.exe and Ubuntu 20.04 "
+ECHO|SET /p="Installing LXrunOffline.exe and Debian "
 POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.5.0/LxRunOffline-v3.5.0-msvc.zip -UseBasicParsing -OutFile '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' ; Expand-Archive -Path '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' -DestinationPath '%PRGF%'" > NUL
-START /WAIT /MIN "Installing Ubuntu 20.04..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
+START /WAIT /MIN "Installing Debian for Pi-hole..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\install.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting the install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
-%GO% "apt-get -y purge *vim* *sound* *alsa* *libgl* *pulse* dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd ubuntu-standard xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\logs\Pi-hole Compact Stage.log"
+%GO% "apt-get -y purge *vim* *sound* *alsa* *libgl* *pulse* dbus dbus-x11 console-setup console-setup-linux kbd xkb-data iso-codes libllvm9 mesa-vulkan-drivers powermgmt-base openssh-server openssh-sftp-server apport snapd open-iscsi plymouth open-vm-tools mdadm rsyslog ufw irqbalance lvm2 multipath-tools cloud-init cryptsetup cryptsetup-bin cryptsetup-run dbus-user-session dmsetup eject friendly-recovery init libcryptsetup12 libdevmapper1.02.1 libnss-systemd libpam-systemd libparted2 netplan.io packagekit packagekit-tools parted policykit-1 software-properties-common systemd systemd-sysv systemd-timesyncd xfsprogs udev apparmor byobu cloud-guest-utils landscape-common pollinate run-one sqlite3 usb.ids usbutils xxd --autoremove --allow-remove-essential ; apt-get update" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 ECHO.-^> Install dependencies
 %GO% "apt-get -y install libklibc unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 nano --no-install-recommends ; apt-get clean" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
+%GO% "wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/cloudflared ; wget -q https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb ; dpkg -i ./cloudflared-stable-linux-amd64.deb ; chmod +x cloudflared ; mv cloudflared /etc/init.d ; rm /usr/local/etc/cloudflared/config.yml ; update-rc.d cloudflared defaults" > "%PRGF%\logs\CloudflareD.log"
+%GO% "pw=$(gpg --quiet --gen-random --armor 1 512) ; useradd -m -p $pw -s /bin/bash cloudflared" > NUL
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
 %GO% "IPF=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
-%GO% "echo IPV4_ADDRESS=%IPC%         >  /etc/pihole/setupVars.conf"
-%GO% "echo PIHOLE_INTERFACE=%IPF%     >> /etc/pihole/setupVars.conf"
-%GO% "echo BLOCKING_ENABLED=true      >> /etc/pihole/setupVars.conf"
-%GO% "echo PIHOLE_DNS_1=8.8.8.8       >> /etc/pihole/setupVars.conf"
-%GO% "echo PIHOLE_DNS_2=8.8.4.4       >> /etc/pihole/setupVars.conf"
-%GO% "echo QUERY_LOGGING=true         >> /etc/pihole/setupVars.conf"
-%GO% "echo INSTALL_WEB_SERVER=true    >> /etc/pihole/setupVars.conf"
-%GO% "echo INSTALL_WEB_INTERFACE=true >> /etc/pihole/setupVars.conf"
-%GO% "echo LIGHTTPD_ENABLED=true      >> /etc/pihole/setupVars.conf"
-%GO% "echo DNSMASQ_LISTENING=all      >> /etc/pihole/setupVars.conf"
-%GO% "echo WEBPASSWORD=               >> /etc/pihole/setupVars.conf"
-%GO% "echo interface %IPF%            >  /etc/dhcpcd.conf"
-%GO% "echo static ip_address=%IPC%    >> /etc/dhcpcd.conf"
+%GO% "echo PIHOLE_DNS_1=127.0.0.1#5053 >  /etc/pihole/setupVars.conf"
+%GO% "echo IPV4_ADDRESS=%IPC%          >> /etc/pihole/setupVars.conf"
+%GO% "echo PIHOLE_INTERFACE=%IPF%      >> /etc/pihole/setupVars.conf"
+%GO% "echo BLOCKING_ENABLED=true       >> /etc/pihole/setupVars.conf"
+%GO% "echo QUERY_LOGGING=true          >> /etc/pihole/setupVars.conf"
+%GO% "echo INSTALL_WEB_SERVER=true     >> /etc/pihole/setupVars.conf"
+%GO% "echo INSTALL_WEB_INTERFACE=true  >> /etc/pihole/setupVars.conf"
+%GO% "echo LIGHTTPD_ENABLED=true       >> /etc/pihole/setupVars.conf"
+%GO% "echo DNSMASQ_LISTENING=all       >> /etc/pihole/setupVars.conf"
+%GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
+%GO% "echo DNSSEC=true                 >> /etc/pihole/setupVars.conf"
+%GO% "echo interface %IPF%             >  /etc/dhcpcd.conf"
+%GO% "echo static ip_address=%IPC%     >> /etc/dhcpcd.conf"
 NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
@@ -78,10 +80,10 @@ REM FixUp: DNS service indicator on web page and remove DHCP server tab
 %GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")#g' /var/www/html/admin/scripts/pi-hole/php/header.php"
 REM FixUp: Set Web Admin port to installer specification
 %GO% "sed -i 's/= 80/= %PORT%/g'                                              /etc/lighttpd/lighttpd.conf"
-REM FixUp: Debug log for WSL1 
+REM FixUp: Debug log parsing for WSL1 
 %GO% "sed -i 's* -f 3* -f 4*g'                                                /opt/pihole/piholeDebug.sh"
 %GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                               /opt/pihole/piholeDebug.sh"
-REM FixUp: Configure alternatie for lsof on WSL1
+REM FixUp: Configure lsof alternative for WSL1
 %GO% "sed -i 's#lsof -Pni:53#netstat.exe -ano | grep \":53 \"#g'              /usr/local/bin/pihole"
 %GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g'             /usr/local/bin/pihole"  
 %GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                                /usr/local/bin/pihole"
