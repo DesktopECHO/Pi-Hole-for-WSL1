@@ -33,7 +33,7 @@ case "$1" in
         echo "Already started"
     else
         echo "Starting $name"
-        su $user -c 'cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query --upstream https://1.0.0.1/dns-query >> /var/log/cloudflared.log' 2>> /var/log/cloudflared.log &
+        su $user -c 'cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query --upstream https://1.0.0.1/dns-query >> /var/log/cloudflared.log 2>> /var/log/cloudflared.log' &
         echo $! > "$pid_file"
         if ! is_running; then
             echo "Unable to start"
@@ -45,6 +45,7 @@ case "$1" in
     if is_running; then
         echo -n "Stopping $name.."
         kill `get_pid`
+        killall -u cloudflared cloudflared
         for i in 1 2 3 4 5 6 7 8 9 10
         # for i in `seq 10`
         do
