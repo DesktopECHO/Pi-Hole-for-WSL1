@@ -2,6 +2,8 @@
 Note: There is no endorsement or partnership between this page and [**©Pi-hole, LLC**](https://pi-hole.net)  
 I take no credit for their most excellent adblocking DNS server, this is just a script that convinces it to run on Windows.
 
+Update 2021-05-22:  Integrate cloudflared set default configuration to use DNS over HTTPS and enable DNSSEC. 
+
 By utilizing the Windows Subsystem for Linux it's possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.
 
 This approach uses fewer resources than the better-known hypervisor/container solution, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows 8 tablet or Atom-powered HDMI stick with 1GB RAM, this will work.
