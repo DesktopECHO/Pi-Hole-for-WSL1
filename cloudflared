@@ -31,7 +31,7 @@ case "$1" in
         echo "Already started"
     else
         echo "Starting $name"
-        su $user -c 'cloudflared proxy-dns --port 5053 --upstream https://1.0.0.1/dns-query --upstream https://1.1.1.1/dns-query' 2>> /var/log/cloudflared.log &
+        su $user -c 'cloudflared proxy-dns --port 5053 --upstream https://1.1.1.1/dns-query --upstream https://1.0.0.1/dns-query' 2>> /var/log/cloudflared.log &
         echo $! > "$pid_file"
         if ! is_running; then
             echo "Unable to start"
