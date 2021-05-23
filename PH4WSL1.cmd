@@ -63,7 +63,6 @@ ECHO.-^> Install dependencies
 %GO% "echo LIGHTTPD_ENABLED=true       >> /etc/pihole/setupVars.conf"
 %GO% "echo DNSMASQ_LISTENING=all       >> /etc/pihole/setupVars.conf"
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
-%GO% "echo DNSSEC=true                 >> /etc/pihole/setupVars.conf"
 %GO% "echo interface %IPF%             >  /etc/dhcpcd.conf"
 %GO% "echo static ip_address=%IPC%     >> /etc/dhcpcd.conf"
 NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
