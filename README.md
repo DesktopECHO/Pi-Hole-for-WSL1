@@ -27,10 +27,10 @@ The download and configuration steps complete in 5-20 minutes, depending on your
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* Includes a Scheduled Task to accomodate **auto-start at boot, before logon.**  
-  **Configure this** by opening Windows Task Scheduler (taskschd.msc) and right-click the **Pi-hole for Windows** task, click edit.  
-   On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
-     On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
+* **NOTE:** Scheduled Task to accomodate auto-start at boot (before logon) **needs to be configured** after installer completes.  
+   - Open Windows Task Scheduler (taskschd.msc) and right-click the **Pi-hole for Windows** task, click edit.  
+   - On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
+   - On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
 **Requires August/September 2020 WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs uninstall Pi-hole, update your machine and try again.  The minimum required updates are as follows:**
 
