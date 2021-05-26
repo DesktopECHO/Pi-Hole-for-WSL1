@@ -6,7 +6,7 @@ This a simple script that convinces the Pi-hole installer to run on Windows.
  - Rebased on Debian Buster for a smaller footprint.  
  - Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
 
-By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.  It can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
+By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  It can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
 
 This approach uses fewer resources than a hypervisor/container, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows 8 tablet or Atom-powered HDMI stick with 1GB RAM, this is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. 
 
@@ -14,7 +14,7 @@ This approach uses fewer resources than a hypervisor/container, and runs on olde
 
 The download and configuration steps complete in 5-20 minutes, depending on your hardware.  The script will:
 
-* Enable WSL1 and download Debian 10 from Microsoft 
+* Enable WSL1 and download Debian 10 from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
 
 * Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
 
@@ -161,8 +161,15 @@ C:\>
 
 
 **Install Folder:**
+
 ![Install Folder](https://user-images.githubusercontent.com/33142753/101309475-e8295b00-3822-11eb-9a84-d22b74df849e.PNG)
 
 
 **Install Complete:**
+
 ![Install Complete](https://user-images.githubusercontent.com/33142753/101309494-f4151d00-3822-11eb-8521-66a96279add0.PNG)
+
+
+**Install on Hyper-V Server 2019:**
+
+![Install Complete](https://user-images.githubusercontent.com/33142753/119681844-ccd5fa80-be18-11eb-9876-4745234d4fde.png)
