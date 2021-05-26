@@ -1,4 +1,4 @@
-# PH4WSL1.cmd (Pi-hole for Windows)
+# PH4WSL1.cmd (Pi-hole on Windows)
 Note: There is no endorsement or partnership between this page and [**Pi-hole©, LLC**](https://pi-hole.net)  
 This a simple script that convinces the Pi-hole installer to run on Windows.
 
