@@ -170,6 +170,6 @@ C:\>
 ![Install Complete](https://user-images.githubusercontent.com/33142753/101309494-f4151d00-3822-11eb-8521-66a96279add0.PNG)
 
 
-**Install on Hyper-V Server 2019:**
+**Virtual Machine running Pi-hole on Hyper-V Server 2019 with 768MB RAM:**
 
-![Install Complete](https://user-images.githubusercontent.com/33142753/119681844-ccd5fa80-be18-11eb-9876-4745234d4fde.png)
+![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
