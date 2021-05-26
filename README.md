@@ -1,5 +1,5 @@
 # PH4WSL1.cmd (Pi-hole on Windows)
-Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net), [support them](https://pi-hole.net/donate/) if you find this useful.
+Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
 
 This a simple script that convinces the Pi-hole installer to run on Windows.  
 
@@ -27,7 +27,7 @@ The download and configuration steps complete in 5-20 minutes, depending on your
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* **NOTE:** Scheduled Task to accomodate auto-start at boot (before logon) **needs to be configured** after installer completes.  
+* **NOTE:** Scheduled Task for auto-start at boot (before logon) **needs to be configured** after installer completes.  
    - Open Windows Task Scheduler (taskschd.msc) and right-click the **Pi-hole for Windows** task, click edit.  
    - On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
    - On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
