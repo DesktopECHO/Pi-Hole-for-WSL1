@@ -1,6 +1,7 @@
 # PH4WSL1.cmd (Pi-hole on Windows)
-Note: There is no endorsement or partnership between this page and [**Pi-hole©, LLC**](https://pi-hole.net)  
-This a simple script that convinces the Pi-hole installer to run on Windows.
+Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net), [support them](https://pi-hole.net/donate/) if you find this useful.
+
+This a simple script that convinces the Pi-hole installer to run on Windows.  
 
 **Update 2021-05-22**:  
  - Rebased on Debian Buster for a smaller footprint.  
