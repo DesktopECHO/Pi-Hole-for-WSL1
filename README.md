@@ -1,22 +1,22 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 Note: There is no endorsement or partnership between this page and [**Pi-hole©, LLC**](https://pi-hole.net)  
-I take no credit for their most excellent adblocking DNS server, this is just a script that convinces it to run on Windows.
+This a simple script that convinces the Pi-hole installer to run on Windows.
 
-**Update 2021-05-22**:  Rebased using Debian, Integrate cloudflared set default configuration to use DNS over HTTPS and enable DNSSEC. 
+**Update 2021-05-22**:  
+ - Rebased on Debian Buster for a smaller footprint.  
+ - Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
 
-By utilizing the Windows Subsystem for Linux it's possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.
+By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (Core and Standard) - No Virtualization, Docker, or Linux expertise required.  It can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
 
-This approach uses fewer resources than the better-known hypervisor/container solution, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows 8 tablet or Atom-powered HDMI stick with 1GB RAM, this will work.
-
-You can use this to block ads for your entire network but real/dedicated hardware may be more advisable in that situation. Pi-hole for Windows' original use case is for ad-blocking on-the-go instead of managing a HOSTS file on your laptop, to research/block OS telemetry messages, or to have a look at Pi-hole's feature set before comitting to hardware.
+This approach uses fewer resources than a hypervisor/container, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows 8 tablet or Atom-powered HDMI stick with 1GB RAM, this is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. 
 
 **INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
 
-The Ubuntu download and configuration steps complete in 5-20 minutes, depending on your hardware.  The script will:
+The download and configuration steps complete in 5-20 minutes, depending on your hardware.  The script will:
 
-* Enable WSL1 and download Ubuntu 20.04 from Microsoft 
+* Enable WSL1 and download Debian 10 from Microsoft 
 
-* Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Ubuntu 20.04
+* Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
 
 * Perform gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 
@@ -59,7 +59,7 @@ Set location for 'Pi-hole' install folder or hit enter for default [C:\Program F
 Pi-hole will be installed in "C:\Program Files\Pi-hole" and Web Admin will listen on port 80
 Press any key to continue . . .
 
-This will take a few minutes:  Installing Ubuntu 20.04 -> Compacting the install -> Install dependencies
+This will take a few minutes:  Installing Debian -> Compacting the install -> Install dependencies
 Extracting templates from packages: 100%
 
 Launching Pi-hole installer...
