@@ -7,45 +7,46 @@ This a simple script that convinces the Pi-hole installer to run on Windows.
  - Rebased on Debian Buster for a smaller footprint.  
  - Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
 
-By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  It can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
+By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries on your local Windows PC or the entire network. 
 
 This approach uses fewer resources than a hypervisor/container, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows tablet or HDMI stick with 1GB+ RAM and it can boot Windows x64, this is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. 
 
-**INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select "Run as Administrator."  
+**INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
-The download and configuration steps complete in 5-20 minutes, depending on your hardware.  The script will:
+Download and configuration steps complete in 5-20 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported isssues with [other antivurus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installaion.
 
-* Enable WSL1 and download Debian 10 from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
+The script will:
+
+* Enable WSL1 and download the official Debian 10 image from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
 
 * Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
 
 * Perform gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 
-* Run the [installer](https://github.com/pi-hole/pi-hole/#one-step-automated-install) from Pi-hole©
+* Run the [official installer](https://github.com/pi-hole/pi-hole/#one-step-automated-install) from Pi-hole©
 
 * Patch Pi-hole installer to use **netstat.exe** instead of **lsof**, along with other fix-ups for WSL1 compatibility.
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
-* **NOTE:** Scheduled Task for auto-start at boot (before logon) **needs to be configured** after installer completes.  
+* **NOTE:** After the install completes, the Scheduled Task **needs to be configured** for auto-start at boot (before logon).  
    - Open Windows Task Scheduler (taskschd.msc) and right-click the **Pi-hole for Windows** task, click edit.  
    - On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
    - On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
-**Requires August/September 2020 WSL update for Windows 10. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs uninstall Pi-hole, update your machine and try again.  The minimum required updates are as follows:**
+**IMPORTANT! Requires August/Sept 2020 WSL update for Windows 10.** This update is already included in Windows 20H2 and newer. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs, run the Pi-hole uninstaller, update your operating system and try again.  Minimum required updates are as follows:**
 
 * 1809 - KB4571748
 * 1909 - KB4566116
 * 2004 - KB4571756
-* 20H2 - Included in OS
 
 **Additional Info:**
 
-* DHCP Server is not supported and has been removed from the UI
+* DHCP Server is not supported and has been removed from the UI.
 
-* IPv6 DNS now works in addition to IPv4  
+* IPv6 DNS now works in addition to IPv4.
 
-* To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder
+* To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder.
 
 * To uninstall Pi-Hole go to the Pi-hole install folder, right-click **Pi-hole Uninstall.cmd** and click **Run As Administrator.**  If you plan on reinstalling, remember to first export your configuration via the Pi-hole web interface. 
 
