@@ -1,15 +1,20 @@
-# PH4WSL1.cmd (Pi-hole on Windows)
-Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
+# PH4WSL1.cmd (Pi-hole for Windows)
 
-This a simple script that convinces the Pi-hole installer to run on Windows.  
+This a script that convinces the Pi-hole installer to run on Windows 10 or Server 2019 using WSL.  
+Watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
 **Update 2021-05-22**:  
  - Rebased on Debian Buster for a smaller footprint.  
  - Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
 
-By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries on your local Windows PC or the entire network. 
+**Pi-hole on Hyper-V Server 2019 (Server Core) with 768MB RAM:**
+![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
 
-This approach uses fewer resources than a hypervisor/container, and runs on older CPU's without VT support, or on a VPS without pass-through virtualization.  If you have an old Windows tablet or HDMI stick with 1GB+ RAM and it can boot Windows x64, this is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. 
+Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
+
+By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries on your local Windows PC or entire network. 
+
+Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  This installation method uses fewer resources than a hypervisor/container, and can run on older CPU's without VT support, or on a VPS without pass-through virtualization support.   
 
 **INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
@@ -170,8 +175,3 @@ C:\>
 **Install Complete:**
 
 ![Install Complete](https://user-images.githubusercontent.com/33142753/101309494-f4151d00-3822-11eb-8521-66a96279add0.PNG)
-
-
-**Virtual Machine running Pi-hole on Hyper-V Server 2019 with 768MB RAM:**
-
-![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
