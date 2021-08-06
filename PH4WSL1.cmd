@@ -97,9 +97,11 @@ REM FixUp: Get pihole status
 %GO% "echo ; echo -------------------------------------------------------------------------------- ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @ECHO [Pi-Hole Launcher]                                                                                                           >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "pihole -up"                                                                                                                 >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null 2>&1 ; apt-get clean"                                                                >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
+
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole -r"                                                                   >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -ano | grep \":53 \"#g'          /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
