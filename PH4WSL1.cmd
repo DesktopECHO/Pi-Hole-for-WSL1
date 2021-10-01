@@ -101,7 +101,7 @@ ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null 2>&1 ; apt-get clean"        
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole -r"                                                                   >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole reconfigure"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -ano | grep \":53 \"#g'          /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g'         /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                            /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
@@ -119,6 +119,7 @@ ECHO @%GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")
 ECHO @%GO% "pihole status"                                                                                                              >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                                                     >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole'"             > "%PRGF%\Pi-hole Updater.cmd"
 ECHO --------------------------------------------------------------------------------
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
 SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F

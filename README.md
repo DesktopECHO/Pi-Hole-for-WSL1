@@ -3,9 +3,10 @@
 This a script that convinces the Pi-hole installer to run on Windows 10 or Server 2019 using WSL.  
 Watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Update 2021-05-22**:  
- - Rebased on Debian Buster for a smaller footprint.  
- - Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
+**Update 2021-10-01**:  
+
+ - Addded shortcut for Pi-hole Updater.
+ - Debian stays up-to-date using its built-in '[unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades)' mechanism. 
 
 **Pi-hole on Hyper-V Server 2019 (Server Core) with 768MB RAM:**
 ![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
@@ -16,15 +17,15 @@ By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a 
 
 Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  This installation method uses fewer resources than a hypervisor/container, and can run on older CPU's without VT support, or on a VPS without pass-through virtualization support.   
 
-**INSTRUCTIONS:** Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
+**INSTRUCTIONS:**  Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
 Download and configuration steps complete in 5-20 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported isssues with [other antivurus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installaion.
 
-The script will:
+**This script performs the following steps:**
 
-* Enable WSL1 and download the official Debian 10 image from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
+* Enable WSL1 and download the official Debian image from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
 
-* Download the  [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
+* Download the [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
 
 * Perform gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 
@@ -46,6 +47,10 @@ The script will:
 * 2004 - KB4571756
 
 **Additional Info:**
+
+* Rebased on Debian for a smaller footprint. 
+ 
+* Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
 
 * DHCP Server is not supported and has been removed from the UI.
 
