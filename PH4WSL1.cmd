@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20210607 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20211023 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" (ECHO. & ECHO Pi-hole folder already exists, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
@@ -18,7 +18,7 @@ IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall 
 ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
 PAUSE 
-IF NOT EXIST %TEMP%\buster.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/6fb6134911e7c25bfd78635a70649b94f82773b0/x64/install.tar.gz?inline=false -destination '%TEMP%\buster.tar.gz'"
+IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\Debian.tar.gz'"
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -41,14 +41,14 @@ ECHO.
 ECHO This will take a few minutes to complete...
 ECHO|SET /p="Installing LXrunOffline.exe and Debian "
 POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.5.0/LxRunOffline-v3.5.0-msvc.zip -UseBasicParsing -OutFile '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' ; Expand-Archive -Path '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' -DestinationPath '%PRGF%'"
-START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\buster.tar.gz" "-d" "."
+START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
-%GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 libidn11 libjson-c3 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
+%GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
 ECHO.-^> Install dependencies
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install gpg wget curl ca-certificates libpcre2-8-0 libpsl5 openssl perl-modules-5.28 libgdbm6 libgdbm-compat4 libperl5.28 perl libcurl3-gnutls liberror-perl git lsof unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.3-cgi php7.3-cli php7.3-common php7.3-intl php7.3-json php7.3-opcache php7.3-readline php7.3-sqlite3 php7.3-xml sqlite3 unzip dhcpcd5 --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/cloudflared ; wget -q https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.deb ; dpkg -i ./cloudflared-stable-linux-amd64.deb ; chmod +x cloudflared ; mv cloudflared /etc/init.d ; update-rc.d cloudflared defaults; apt-get clean" > "%PRGF%\logs\CloudflareD.log"
+%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install gpg wget curl ca-certificates libpcre2-8-0 libpsl5 openssl perl-modules-5.32 libgdbm6 libgdbm-compat4 libperl5.32 perl libcurl3-gnutls liberror-perl git lsof unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
+%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/cloudflared ; wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb ; dpkg -i ./cloudflared-linux-amd64.deb ; chmod +x cloudflared ; mv cloudflared /etc/init.d ; update-rc.d cloudflared defaults; apt-get clean" > "%PRGF%\logs\CloudflareD.log"
 %GO% "pw=$(gpg --quiet --gen-random --armor 1 512) ; useradd -m -p $pw -s /bin/bash cloudflared" > NUL
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
