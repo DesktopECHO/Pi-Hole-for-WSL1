@@ -3,8 +3,9 @@
 This a script that convinces the Pi-hole installer to run on Windows 10 or Server 2019 using WSL.  
 Watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Update 2021-10-01**:  
+**Update 2021-10-23**:  
 
+ - Updated to Debian 11
  - Addded shortcut for Pi-hole Updater.
  - Debian stays up-to-date using its built-in '[unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades)' mechanism. 
 
