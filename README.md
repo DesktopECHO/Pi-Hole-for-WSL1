@@ -20,7 +20,7 @@ Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Up
 
 **INSTRUCTIONS:**  Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
-Download and configuration steps complete in 5-20 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported issues with [other antivurus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installaion.
+Download and configuration steps complete in 5-20 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported issues with [other antivirus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installaion.
 
 **This script performs the following steps:**
 
