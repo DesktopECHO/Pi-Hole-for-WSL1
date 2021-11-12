@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20211023 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20211217 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" (ECHO. & ECHO Pi-hole folder already exists, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
@@ -18,7 +18,8 @@ IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall 
 ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
 PAUSE 
-IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\Debian.tar.gz'"
+IF NOT EXIST %TEMP%\Debian.tar.gz    POWERSHELL.EXE -Command "Start-BitsTransfer -source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/debian11.1b9e7597.tar.gz?raw=true -destination '%TEMP%\Debian.tar.gz'"
+IF NOT EXIST %TEMP%\LxRunOffline.zip POWERSHELL.EXE -Command "Start-BitsTransfer -source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip?raw=true?raw=true -destination '%TEMP%\LxRunOffline.zip'"
 %PRGF:~0,1%: & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -28,6 +29,7 @@ ECHO @COPY /Y "%PRGF%\LxRunOffline.exe" "%TEMP%"                   >> "%PRGF%\Pi
 ECHO @SCHTASKS /Delete /TN:"Pi-hole for Windows" /F                >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @CLS                                                          >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @ECHO Uninstalling Pi-hole...                                 >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO @NetSH AdvFirewall Firewall del rule name="Unbound Resolver"  >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole FTL"       >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole Web Admin" >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO @NetSH AdvFirewall Firewall del rule name="Pi-hole DNS (TCP)" >> "%PRGF%\Pi-hole Uninstall.cmd"
@@ -40,20 +42,19 @@ ECHO @RD /S /Q "%PRGF%"                                            >> "%PRGF%\Pi
 ECHO.
 ECHO This will take a few minutes to complete...
 ECHO|SET /p="Installing LXrunOffline.exe and Debian "
-POWERSHELL.EXE -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; wget https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.5.0/LxRunOffline-v3.5.0-msvc.zip -UseBasicParsing -OutFile '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' ; Expand-Archive -Path '%TEMP%\LxRunOffline-v3.5.0-msvc.zip' -DestinationPath '%PRGF%'"
+POWERSHELL.EXE -Command "Expand-Archive -Force -Path '%TEMP%\LxRunOffline.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
 START /WAIT /MIN "Installing Debian..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
 ECHO.-^> Install dependencies
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install gpg wget curl ca-certificates libpcre2-8-0 libpsl5 openssl perl-modules-5.32 libgdbm6 libgdbm-compat4 libperl5.32 perl libcurl3-gnutls liberror-perl git lsof unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/cloudflared ; wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb ; dpkg -i ./cloudflared-linux-amd64.deb ; chmod +x cloudflared ; mv cloudflared /etc/init.d ; update-rc.d cloudflared defaults; apt-get clean" > "%PRGF%\logs\CloudflareD.log"
-%GO% "pw=$(gpg --quiet --gen-random --armor 1 512) ; useradd -m -p $pw -s /bin/bash cloudflared" > NUL
+%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install gpg wget curl ca-certificates libpcre2-8-0 libpsl5 openssl perl-modules-5.32 libgdbm6 libgdbm-compat4 libperl5.32 perl libcurl3-gnutls liberror-perl git lsof unattended-upgrades anacron cron logrotate inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip dhcpcd5 unbound --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
+%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/pi-hole.conf -O /etc/unbound/unbound.conf.d/pi-hole.conf" > NUL
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
 %GO% "IPF=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
-%GO% "echo PIHOLE_DNS_1=127.0.0.1#5053 >  /etc/pihole/setupVars.conf"
+%GO% "echo PIHOLE_DNS_1=127.0.0.1#5335 >  /etc/pihole/setupVars.conf"
 %GO% "echo IPV4_ADDRESS=%IPC%          >> /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_INTERFACE=%IPF%      >> /etc/pihole/setupVars.conf"
 %GO% "echo BLOCKING_ENABLED=true       >> /etc/pihole/setupVars.conf"
@@ -65,44 +66,41 @@ ECHO.-^> Install dependencies
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
 %GO% "echo interface %IPF%             >  /etc/dhcpcd.conf"
 %GO% "echo static ip_address=%IPC%     >> /etc/dhcpcd.conf"
-NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"        dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"  dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"  dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Unbound Resolver"  dir=in action=allow program="%PRGF%\rootfs\usr\sbin\unbound" enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"       dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin" dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)" dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)" dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 REM -- Install Pi-hole
 %GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended"
 REM FixUp: DNS service indicator on web page and remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'         /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                        /var/www/html/admin/settings.php"
-%GO% "sed -i 's#if ($pistatus === \"1\")#if ($pistatus === \"-1\")#g'         /var/www/html/admin/scripts/pi-hole/php/header.php"
-%GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")#g' /var/www/html/admin/scripts/pi-hole/php/header.php"
 REM FixUp: Set Web Admin port to installer specification
 %GO% "sed -i 's/= 80/= %PORT%/g'                                              /etc/lighttpd/lighttpd.conf"
 REM FixUp: Debug log parsing on WSL1 
 %GO% "sed -i 's* -f 3* -f 4*g'                                                /opt/pihole/piholeDebug.sh"
 %GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                               /opt/pihole/piholeDebug.sh"
 REM FixUp: Configure lsof alternative for WSL1
-%GO% "sed -i 's#lsof -Pni:53#netstat.exe -ano | grep \":53 \"#g'              /usr/local/bin/pihole"
+%GO% "sed -i 's#Pni:53#ano | grep :53\ #g'                                    /usr/local/bin/pihole"
 %GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g'             /usr/local/bin/pihole"  
 %GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                                /usr/local/bin/pihole"
 %GO% "sed -i 's#IPv4.*TCP#TCP    0.0.0.0:53#g'                                /usr/local/bin/pihole" 
 %GO% "sed -i 's#IPv6.*UDP#UDP    \\[::\\]:53#g'                               /usr/local/bin/pihole" 
 %GO% "sed -i 's#IPv6.*TCP#TCP    \\[::\\]:53#g'                               /usr/local/bin/pihole"
-REM FixUp: Remove unneeded service check (ugly hack, pull requests welcome :-)  
-%GO% "sed -i 's#${CROSS} DNS service is NOT listening#Process Complete#g'     /usr/local/bin/pihole"
 REM FixUp: Get pihole status 
-%GO% "pihole status"          
+%GO% "rm /usr/bin/lsof ; ln -s $(which netstat.exe) /usr/bin/lsof ; pihole status"          
 %GO% "touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list ; pihole restartdns"
 %GO% "echo ; echo -------------------------------------------------------------------------------- ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @ECHO [Pi-Hole Launcher]                                                                                                           >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null 2>&1 ; apt-get clean"                                                                >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "apt-get -qq remove dhcpcd5 > /dev/null 2>&1 ; apt-get clean ; rm /usr/bin/lsof ; ln -s $(which netstat.exe) /usr/bin/lsof"  >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole reconfigure"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's#lsof -Pni:53#netstat.exe -ano | grep \":53 \"#g'          /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole reconfigure"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"   
+ECHO @%GO% "sed -i 's#Pni:53#ano | grep :53\ #g'                                /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#if grep -q \"pihole\"#if grep -q \"LISTENING\"#g'         /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#IPv4.*UDP#UDP    0.0.0.0:53#g'                            /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's#IPv4.*TCP#TCP    0.0.0.0:53#g'                            /usr/local/bin/pihole"                                  >> "%PRGF%\Pi-hole Configuration.cmd"
@@ -114,12 +112,11 @@ ECHO @%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"  
 ECHO @%GO% "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"                                                                    >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                                                        >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                                                       >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's#if ($pistatus === \"1\")#if ($pistatus === \"-1\")#g'         /var/www/html/admin/scripts/pi-hole/php/header.php" >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's#elseif ($pistatus === \"-1\")#elseif ($pistatus === \"1\")#g' /var/www/html/admin/scripts/pi-hole/php/header.php" >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "pihole status"                                                                                                              >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                                                     >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
-POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole'"             > "%PRGF%\Pi-hole Updater.cmd"
+ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                           > "%PRGF%\Pi-hole Web Admin.cmd"
+POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole 2>/dev/null'" > "%PRGF%\Pi-hole Updater.cmd"
 ECHO --------------------------------------------------------------------------------
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
 SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F

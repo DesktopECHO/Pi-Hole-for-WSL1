@@ -3,10 +3,12 @@
 This a script that convinces the Pi-hole installer to run on Windows 10 or Server 2019 using WSL.  
 Watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Update 2021-10-23**:  
+**Update 2021-12-17**:  
 
+ - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about)
  - Updated to Debian 11
- - Addded shortcut for Pi-hole Updater.
+ - Fixes for Windows 11 compatibility 
+ - Addded shortcut for Pi-hole Updater
  - Debian stays up-to-date using its built-in '[unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades)' mechanism. 
 
 **Pi-hole on Hyper-V Server 2019 (Server Core) with 768MB RAM:**
@@ -51,7 +53,7 @@ Download and configuration steps complete in 5-20 minutes, depending on your har
 
 * Rebased on Debian for a smaller footprint. 
  
-* Integrated [**cloudflared**](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation) DNS over HTTPS and enabled DoH in the default configuration. 
+* Integrated [**Unbound**](https://www.nlnetlabs.nl/projects/unbound/about) into the default configuration. 
 
 * DHCP Server is not supported and has been removed from the UI.
 
