@@ -1,24 +1,25 @@
 # PH4WSL1.cmd (Pi-hole for Windows)
 
-This a script that convinces the Pi-hole installer to run on Windows 10 or Server 2019 using WSL.  
-Watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
+Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably under Windows 10/11 (or Windows Server 2019/2022) using Windows Subsystem for Linux.  
+ - For a quick overview, watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Update 2021-12-17**:  
+**Latest Updates for 2022-01-08:**  
 
- - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about)
+ - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
+ - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set default Pi-hole configuration to use encrypted DNS
  - Updated to Debian 11
  - Fixes for Windows 11 compatibility 
- - Addded shortcut for Pi-hole Updater
- - Debian stays up-to-date using its built-in '[unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades)' mechanism. 
+ - Addded links in the install folder for updater ``Pi-hole Updater.cmd`` and web admin ``Pi-hole Web Admin.cmd`` 
+ - Debian self-updates using its built-in '[unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades)' mechanism 
 
 **Pi-hole on Hyper-V Server 2019 (Server Core) with 768MB RAM:**
 ![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
 
 Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
 
-By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole 5.2+ on Windows 10 (version 1809 and newer) or Windows Server 2019 (including Hyper-V Core if you don't have a Windows license) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries on your local Windows PC or entire network. 
+By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole on Windows 10 (version 1809 and newer) or Windows Server 2019 (including 'free' Hyper-V Core) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
 
-Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  This installation method uses fewer resources than a hypervisor/container, and can run on older CPU's without VT support, or on a VPS without pass-through virtualization support.   
+Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  This installation method uses fewer resources than other hypervisor/container solutions, and runs on older CPU models without VT, or cloud instances that don't support [nested virtualization](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)   
 
 **INSTRUCTIONS:**  Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
@@ -30,11 +31,11 @@ Download and configuration steps complete in 5-20 minutes, depending on your har
 
 * Download the [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian
 
-* Perform gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
+* Perform interface/gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 
 * Run the [official installer](https://github.com/pi-hole/pi-hole/#one-step-automated-install) from Pi-hole©
 
-* Patch Pi-hole installer to use **netstat.exe** instead of **lsof**, along with other fix-ups for WSL1 compatibility.
+* Create shim so Pi-hole gets the expected output from ``/bin/ss`` along with other fix-ups for WSL1 compatibility.
 
 * Add exceptions to Windows Firewall for DNS and the Pi-hole admin page
 
@@ -43,17 +44,7 @@ Download and configuration steps complete in 5-20 minutes, depending on your har
    - On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
    - On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
-**IMPORTANT! Requires August/Sept 2020 WSL update for Windows 10.** This update is already included in Windows 20H2 and newer. If you don't have Windows up to date, Pi-hole installer will throw an "Unsupported OS" error midway through the installation.  If this occurrs, run the Pi-hole uninstaller, update your operating system and try again.  Minimum required updates are as follows:**
-
-* 1809 - KB4571748
-* 1909 - KB4566116
-* 2004 - KB4571756
-
 **Additional Info:**
-
-* Rebased on Debian for a smaller footprint. 
- 
-* Integrated [**Unbound**](https://www.nlnetlabs.nl/projects/unbound/about) into the default configuration. 
 
 * DHCP Server is not supported and has been removed from the UI.
 
@@ -61,7 +52,7 @@ Download and configuration steps complete in 5-20 minutes, depending on your har
 
 * To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder.
 
-* To uninstall Pi-Hole go to the Pi-hole install folder, right-click **Pi-hole Uninstall.cmd** and click **Run As Administrator.**  If you plan on reinstalling, remember to first export your configuration via the Pi-hole web interface. 
+* To completely uninstall Pi-Hole, open the Pi-hole install folder in Windows Explorer.  Right-click ``Pi-hole Uninstall.cmd`` and click **Run As Administrator.**  If you are uninstalling or reinstalling and need to retain your Pi-hole's configuration, export it first via the web interface. 
 
 **Trimmed console dump and screenshots:**
 
@@ -129,12 +120,18 @@ Launching Pi-hole installer...
   [✗] Check for existing repository in /var/www/html/admin
   [i] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin...HEAD is now at 8ac95be Merge pull request #1647 from pi-hole/release/v5.2.1
   [✓] Clone https://github.com/pi-hole/AdminLTE.git into /var/www/html/admin
+  [✓] Preparing new gravity database
+  [i] Using libz compression
 
- 
+  [i] Target: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+  [✓] Status: Retrieval successful
+  [i] Analyzed 101021 domains
+
   [✓] Storing downloaded domains in new gravity database
   [✓] Building tree
   [✓] Swapping databases
-  [i] Number of gravity domains: 85084 (85053 unique domains)
+  [✓] The old database remains available.
+  [i] Number of gravity domains: 101021 (101021 unique domains)
   [i] Number of exact blacklisted domains: 0
   [i] Number of regex blacklist filters: 0
   [i] Number of exact whitelisted domains: 0
@@ -142,33 +139,39 @@ Launching Pi-hole installer...
   [✓] Flushing DNS cache
   [✓] Cleaning up stray matter
 
-  [✗] DNS service is NOT listening
-
-  [i] The install log is located at: /etc/pihole/install.log
-Update Complete!
-
-  Current Pi-hole version is v5.2.1.
-  Current AdminLTE version is v5.2.1.
-  Current FTL version is v5.3.2.
-  [✓] DNS service is listening
+  [✓] FTL is listening on port 53
      [✓] UDP (IPv4)
      [✓] TCP (IPv4)
      [✓] UDP (IPv6)
      [✓] TCP (IPv6)
 
   [✓] Pi-hole blocking is enabled
-  [✓] Restarting DNS server
 
---------------------------------------------------------------------------------
+  [i] The install log is located at: /etc/pihole/install.log
+Update Complete!
+
+  Current Pi-hole version is v5.8.1
+  Current AdminLTE version is v5.10.1
+  Current FTL version is v5.13
+
 Pi-hole Web Admin, Enter New Password (Blank for no password):
   [✓] Password Removed
---------------------------------------------------------------------------------
+
 SUCCESS: The scheduled task "Pi-hole for Windows" has successfully been created.
 
-Pi-hole for Windows installed in C:\Program Files\Pi-hole
-Press any key to continue . . .
+   NOTE! The Scheduled Task needs to be configured so
+         Pi-hole can automatically start at boot time.
 
-C:\>       
+       - Open Windows Task Scheduler (taskschd.msc) right-click
+         the task "Pi-hole for Windows" and click edit.
+
+       - On the General tab, place a checkmark next to
+         "Both Run whether user is logged on or not" and "Hidden"
+
+       - On the Conditions tab, un-check the option
+         "Start the task only if the computer is on AC power"
+
+Press any key to continue . . .
 ```
 
 **Installer run:**

@@ -1,0 +1,49 @@
+#!/bin/bash
+service ssh stop >/dev/null 2>&1
+shopt -s nocasematch
+echo Type \'P\' to set this Pi-hole as Primary
+read -p "     or type 'S' to set it as Secondary: " nodetype
+read -p "           Enter IP of the sync partner: " ipaddr
+echo "sshd: $ipaddr" > /etc/hosts.allow
+echo "sshd: ALL"     > /etc/hosts.deny
+echo
+update-rc.d ssh enable ; service ssh restart
+echo "Waiting for this script to launch on replication partner..."
+while ! nc -z $ipaddr 5322; do
+ sleep .1
+done
+echo "Gravity Sync for PH4WSL1.CMD" ; echo
+userdel -r -f gs4wsl1 >/dev/null 2>&1 ; adduser --disabled-password --gecos '' gs4wsl1 >/dev/null 2>&1
+echo 'gs4wsl1:gs4wsl1' | sudo chpasswd >/dev/null 2>&1
+echo 'gs4wsl1 ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gs-nopasswd
+chmod 644 /etc/sudoers.d/gs-nopasswd
+su - gs4wsl1 -c 'wget -q https://github.com/vmstan/gravity-sync/archive/refs/tags/v3.4.8.zip ; unzip -q v3.4.8.zip ; mv gravity-sync-3.4.8 gravity-sync'
+su - gs4wsl1 -c 'cd gravity-sync ; grep -rl 22 . | xargs sed -i 's/22/5322/g''
+sed -i 's/PING_AVOID=\x270\x27/PING_AVOID=\x271\x27/g'                        /home/gs4wsl1/gravity-sync/gravity-sync.sh
+sed -i 's/ROOT_CHECK_AVOID=\x270\x27/ROOT_CHECK_AVOID=\x271\x27/g'            /home/gs4wsl1/gravity-sync/gravity-sync.sh
+sed -i 's/\x24{SSH_PORT}/5322/g'                                              /home/gs4wsl1/gravity-sync/includes/gs-ssh.sh
+sed -i '/            update|upgrade)/,+5d'                                    /home/gs4wsl1/gravity-sync/gravity-sync.sh
+sed -i '/update/d'                                                            /home/gs4wsl1/gravity-sync/includes/gs-exit.sh
+sed -i 's/#   Port 22/    Port 5322/g'                                        /etc/ssh/ssh_config
+if [[ "S" =~ "$nodetype" ]]
+ then
+  echo "Secondary node setup will continue in a moment..."
+  sleep 15
+fi
+su - gs4wsl1 -c 'ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa'
+su - gs4wsl1 -c "SSHPASS='gs4wsl1' sshpass -e ssh-copy-id -p 5322 -o StrictHostKeyChecking=no gs4wsl1@$ipaddr"
+if [[ "P" =~ "$nodetype" ]]
+ then
+  su - gs4wsl1 -c 'touch ~/PRIMARY'
+ else
+  su - gs4wsl1 -c 'touch ~/SECONDARY'
+  sed -i 's/read INPUT_ADVANCED_INSTALL/INPUT_ADVANCED_INSTALL="N"/g' /home/gs4wsl1/gravity-sync/includes/gs-config.sh
+  sed -i "s/read INPUT_REMOTE_HOST/INPUT_REMOTE_HOST=$ipaddr/g"       /home/gs4wsl1/gravity-sync/includes/gs-config.sh
+  sed -i 's/read INPUT_REMOTE_USER/INPUT_REMOTE_USER="gs4wsl1"/g'     /home/gs4wsl1/gravity-sync/includes/gs-config.sh
+  su - gs4wsl1 -c '/home/gs4wsl1/gravity-sync/gravity-sync.sh'
+  su - gs4wsl1 -c '/home/gs4wsl1/gravity-sync/gravity-sync.sh automate'
+  su - gs4wsl1 -c 'touch /home/gs4wsl1/gravity-sync/logs/gravity-sync.cron ; /home/gs4wsl1/gravity-sync/gravity-sync.sh logs'
+  # Reset gs4wsl1 password
+  usermod --password $(openssl rand -hex 32) gs4wsl1
+fi
+echo ; echo "Complete!"
