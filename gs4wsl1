@@ -1,6 +1,9 @@
 #!/bin/bash
-service ssh stop >/dev/null 2>&1
 shopt -s nocasematch
+echo 
+echo You must start \'Gravity Sync - Setup.CMD\'
+echo on the other Pi-hole before you continue!
+echo
 echo Type \'P\' to set this Pi-hole as Primary
 read -p "     or type 'S' to set it as Secondary: " nodetype
 read -p "           Enter IP of the sync partner: " ipaddr
@@ -25,9 +28,9 @@ sed -i 's/\x24{SSH_PORT}/5322/g'                                              /h
 sed -i '/            update|upgrade)/,+5d'                                    /home/gs4wsl1/gravity-sync/gravity-sync.sh
 sed -i '/update/d'                                                            /home/gs4wsl1/gravity-sync/includes/gs-exit.sh
 sed -i 's/#   Port 22/    Port 5322/g'                                        /etc/ssh/ssh_config
-if [[ "S" =~ "$nodetype" ]]
+if [[ "P" =~ "$nodetype" ]]
  then
-  echo "Secondary node setup will continue in a moment..."
+  echo "Primary node setup will continue in a moment..."
   sleep 15
 fi
 su - gs4wsl1 -c 'ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa'
@@ -35,8 +38,6 @@ su - gs4wsl1 -c "SSHPASS='gs4wsl1' sshpass -e ssh-copy-id -p 5322 -o StrictHostK
 if [[ "P" =~ "$nodetype" ]]
  then
   su - gs4wsl1 -c 'touch ~/PRIMARY'
- else
-  su - gs4wsl1 -c 'touch ~/SECONDARY'
   sed -i 's/read INPUT_ADVANCED_INSTALL/INPUT_ADVANCED_INSTALL="N"/g' /home/gs4wsl1/gravity-sync/includes/gs-config.sh
   sed -i "s/read INPUT_REMOTE_HOST/INPUT_REMOTE_HOST=$ipaddr/g"       /home/gs4wsl1/gravity-sync/includes/gs-config.sh
   sed -i 's/read INPUT_REMOTE_USER/INPUT_REMOTE_USER="gs4wsl1"/g'     /home/gs4wsl1/gravity-sync/includes/gs-config.sh
@@ -45,5 +46,8 @@ if [[ "P" =~ "$nodetype" ]]
   su - gs4wsl1 -c 'touch /home/gs4wsl1/gravity-sync/logs/gravity-sync.cron ; /home/gs4wsl1/gravity-sync/gravity-sync.sh logs'
   # Reset gs4wsl1 password
   usermod --password $(openssl rand -hex 32) gs4wsl1
+  su -c "ssh $ipaddr 'sudo usermod --password $(openssl rand -hex 32) gs4wsl1'" gs4wsl1
+ else
+  su - gs4wsl1 -c 'touch ~/SECONDARY'
 fi
 echo ; echo "Complete!"
