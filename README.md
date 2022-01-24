@@ -5,7 +5,7 @@ Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably unde
 
 **Latest Updates for 2022-01-24:**  
 
- - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) setup script lets you easily synchronize two Pi-hole for Windows instances!  
+ - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) setup script lets you easily synchronize two Pi-hole for Windows instances!  To set this up, just run ``Gravity Sync - Setup.cmd`` on both Pi-hole for Windows instances.  Synchronization runs every 5-30 minutes (you will be prompted to set this interval) and can also be kicked-off manually by running ``Gravity Sync - Smart Sync.cmd``
  - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
  - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set default Pi-hole configuration to use encrypted DNS
  - Updated to Debian 11
