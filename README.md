@@ -3,8 +3,9 @@
 Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably under Windows 10/11 (or Windows Server 2019/2022) using Windows Subsystem for Linux.  
  - For a quick overview, watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Latest Updates for 2022-01-08:**  
+**Latest Updates for 2022-01-24:**  
 
+ - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) setup script lets you easily synchronize two Pi-hole for Windows instances!  
  - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
  - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set default Pi-hole configuration to use encrypted DNS
  - Updated to Debian 11
