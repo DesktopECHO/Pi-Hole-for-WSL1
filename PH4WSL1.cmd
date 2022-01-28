@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220124 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220128 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -19,9 +19,11 @@ IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall 
 ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
 PAUSE 
-IF NOT EXIST %TEMP%\Debian.tar.gz    POWERSHELL.EXE -Command "Start-BitsTransfer -source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/debian11.1b9e7597.tar.gz?raw=true -destination '%TEMP%\Debian.tar.gz'"
-IF NOT EXIST %TEMP%\LxRunOffline.zip POWERSHELL.EXE -Command "Start-BitsTransfer -source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/blob/master/LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip?raw=true?raw=true -destination '%TEMP%\LxRunOffline.zip'"
+ECHO Downloading packages . . .
+IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\Debian.tar.gz'"
 %PRGF:~0,2% & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
+POWERSHELL.EXE -Command "(New-Object Net.WebClient).DownloadFile('https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip', 'PH4WSL1.zip') ; Expand-Archive 'PH4WSL1.zip' -Force ; Remove-Item 'PH4WSL1.zip'"
+POWERSHELL.EXE -Command "Expand-Archive -Force -Path '.\PH4WSL1\Pi-Hole-for-WSL1-master\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
 ECHO @ECHO OFF ^& CLS ^& NET SESSION ^>NUL 2^>^&1                                  > "%PRGF%\Pi-hole Uninstall.cmd"
@@ -42,16 +44,14 @@ ECHO START /MIN "Uninstall" "CMD.EXE" /C RD /S /Q "%PRGF%"                      
 ECHO.
 ECHO This will take a few minutes to complete . . .
 ECHO|SET /p="Installing Debian "
-POWERSHELL.EXE -Command "Expand-Archive -Force -Path '%TEMP%\LxRunOffline.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
 START /WAIT /MIN "Install Debian instance..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
 ECHO.-^> Install dependencies . . .
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; apt-get update ; apt-get -y install sshpass expect rsync xinetd update-inetd ssh openssh-server openssh-sftp-server openssh-client unbound gpg wget curl ca-certificates libpsl5 openssl perl-modules-5.32 libgdbm6 libgdbm-compat4 libperl5.32 perl libcurl3-gnutls liberror-perl git unattended-upgrades anacron inetutils-syslogd dns-root-data dnsutils gamin idn2 libgamin0 lighttpd netcat php-cgi php-common php-intl php-sqlite3 php-xml php7.4-cgi php7.4-cli php7.4-common php7.4-intl php7.4-json php7.4-opcache php7.4-readline php7.4-sqlite3 php7.4-xml sqlite3 unzip --no-install-recommends" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/pi-hole.conf -O /etc/unbound/unbound.conf.d/pi-hole.conf" > NUL
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; wget -q https://raw.githubusercontent.com/DesktopECHO/Pi-Hole-for-WSL1/master/ss -O /.ss ; chmod +x /.ss ; cp /.ss /bin/ss" > NUL
+%GO% "apt-get -y --allow-downgrades install ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
+%GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp  ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf" 
 %GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ;  sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces ; update-rc.d ssh disable"
 %GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
@@ -72,8 +72,8 @@ NetSH AdvFirewall Firewall add rule name="Pi-hole Gravity Sync" dir=in action=al
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"    dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"    dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
-REM -- Install Pi-hole
-%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended"
+REM -- Install Pi-hole -- Unattended-upgrades will keep Debian updated so we will prevent the PH installer from running APT
+%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt"
 REM -- FixUp: Remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
