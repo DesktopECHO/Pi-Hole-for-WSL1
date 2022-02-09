@@ -2,6 +2,7 @@
 
 Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably under Windows 10/11 (or Windows Server 2019/2022) using Windows Subsystem for Linux.  
  - For a quick overview, watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
+ - [Short video](https://www.reddit.com/r/pihole/comments/scju1d/pihole_for_windows_unbound_gravity_sync) on Reddit of two Windows PC's installing Pi-hole and establishing a replication partnership
  - Jump to [Install Instructions](#INSTALL-INSTRUCTIONS)
 
 ## Latest Updates for 2022-01-24
@@ -180,7 +181,7 @@ Press any key to continue . . .
 
 ## Install Folder
 
-![Install Folder](https://user-images.githubusercontent.com/33142753/101309475-e8295b00-3822-11eb-9a84-d22b74df849e.PNG)
+![Install Folder](https://user-images.githubusercontent.com/33142753/153233161-c7b5d9af-6120-448e-b4e7-d51f23c43dd9.PNG)
 
 
 ## Install Complete
