@@ -3,7 +3,7 @@
 Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably under Windows 10/11 (or Windows Server 2019/2022) using Windows Subsystem for Linux.  
  - For a quick overview, watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
 
-**Latest Updates for 2022-01-24:**  
+## Latest Updates for 2022-01-24
 
  - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) setup script lets you easily synchronize two Pi-hole for Windows instances!  To set this up, run ``Gravity Sync - Setup.cmd`` on both Pi-hole for Windows instances.  Synchronization runs every 5-30 minutes (you will be prompted to set this interval) and can also be kicked-off manually by running ``Gravity Sync - Smart Sync.cmd``
  - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
@@ -16,7 +16,8 @@ Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably unde
 ## Pi-hole on Hyper-V Server 2019 (Server Core) with 768MB RAM
 ![Install Complete](https://user-images.githubusercontent.com/33142753/119683187-d3b13d00-be19-11eb-8ed1-344fba3b6fdf.png)
 
-Note: There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
+## Note
+There is no endorsement or partnership between this page and [**Pi-hole© LLC**](https://pi-hole.net).  They deserve [your support](https://pi-hole.net/donate/) if you find this useful.
 
 By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a Windows 10 PC just like any other Windows app.  The install script performs an automated install of Pi-hole on Windows 10 (version 1809 and newer) or Windows Server 2019 (including 'free' Hyper-V Core) - No Virtualization, Docker, or Linux expertise required.  Pi-hole can be used to block ads and encrypt DNS queries for your local Windows PC or entire network. 
 
