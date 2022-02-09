@@ -2,6 +2,7 @@
 
 Installer script to make [Pi-hole](https://github.com/pi-hole) run reliably under Windows 10/11 (or Windows Server 2019/2022) using Windows Subsystem for Linux.  
  - For a quick overview, watch the [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
+ - Jump to [Install Instructions](#INSTALL-INSTRUCTIONS)
 
 ## Latest Updates for 2022-01-24
 
@@ -23,7 +24,7 @@ By utilizing the Windows Subsystem for Linux it is possible to run Pi-hole on a 
 
 Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  This installation method uses fewer resources than other hypervisor/container solutions, and runs on older CPU models without VT, or cloud instances that don't support [nested virtualization](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)   
 
-# INSTRUCTIONS
+# INSTALL INSTRUCTIONS
 1. Copy [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd) to your computer, right click the file and select **"Run as Administrator."**  
 
 Download and configuration steps complete in 2-15 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported issues with [other antivirus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installaion.
