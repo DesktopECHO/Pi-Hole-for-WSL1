@@ -42,7 +42,7 @@ Download and configuration steps complete in 2-15 minutes, depending on your har
    2. On the *General* tab, place a checkmark next to both **Run whether user is logged on or not** and **Hidden**  
    3. On the *Conditions* tab, un-check the option **Start the task only if the computer is on AC power**
 
-# Additional Info:
+# Additional Info
 
 * DHCP Server is not supported and has been removed from the UI.
 
