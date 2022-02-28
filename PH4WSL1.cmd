@@ -20,9 +20,9 @@ ECHO.
 ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
 PAUSE 
 ECHO Downloading packages . . .
-IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -destination '%TEMP%\Debian.tar.gz'"
+IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/cdf4465044cdfafbc1a0e0098cea5271a217d587/debian11.1b9e7597.tar.gz -Destination '%TEMP%\Debian.tar.gz'"
 %PRGF:~0,2% & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
-POWERSHELL.EXE -Command "(New-Object Net.WebClient).DownloadFile('https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip', 'PH4WSL1.zip') ; Expand-Archive 'PH4WSL1.zip' -Force ; Remove-Item 'PH4WSL1.zip'"
+POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip -Destination PH4WSL1.zip ; Expand-Archive 'PH4WSL1.zip' -Force ; Remove-Item 'PH4WSL1.zip'"
 POWERSHELL.EXE -Command "Expand-Archive -Force -Path '.\PH4WSL1\Pi-Hole-for-WSL1-master\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -44,7 +44,7 @@ ECHO START /MIN "Uninstall" "CMD.EXE" /C RD /S /Q "%PRGF%"                      
 ECHO.
 ECHO This will take a few minutes to complete . . .
 ECHO|SET /p="Installing Debian "
-START /WAIT /MIN "Install Debian instance..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
+START /WAIT /MIN "Installing Debian, one moment please..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
@@ -108,13 +108,13 @@ ECHO IF NOT EXIST ".\Logs\Gravity Sync.log"          MKLINK /H ".\Logs\Gravity S
 ECHO IF NOT EXIST ".\Logs\Gravity Sync Cron Job.log" MKLINK /H ".\Logs\Gravity Sync Cron Job.log" .\rootfs\home\gs4wsl1\gravity-sync\logs\gravity-sync.cron^>nul 2^>^&1  >> "%PRGF%\Gravity Sync - Setup.cmd"
 ECHO IF EXIST "%PRGF%\rootfs\home\gs4wsl1\PRIMARY" @ECHO @%GO% "su - gs4wsl1 -c ./gravity-sync/gravity-sync.sh smart ; sleep 5" ^> "Gravity Sync - Smart Sync.cmd"       >> "%PRGF%\Gravity Sync - Setup.cmd"
 ECHO ECHO.^&ECHO To close this window, ^& PAUSE                                                                                                                          >> "%PRGF%\Gravity Sync - Setup.cmd"
-%GO% "echo ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
+RD /S /Q "%PRGF%\PH4WSL1" & %GO% "echo ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
 START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"  
 (ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole Inputs.log"
 DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole Inputs.log"
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
 ECHO.&SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
-ECHO.&ECHO.   NOTE! The Scheduled Task needs additional configuration steps
+ECHO.&ECHO.  *NOTE* Additional configuration steps are required
 ECHO.         for Pi-hole to start automatically at boot time.
 ECHO.     
 ECHO.       - Open Windows Task Scheduler (taskschd.msc)
