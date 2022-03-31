@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220128 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220409 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -17,12 +17,20 @@ WSL.EXE -d Pi-hole -e . > "%TEMP%\InstCheck.tmp"
 FOR /f %%i in ("%TEMP%\InstCheck.tmp") do set CHKIN=%%~zi 
 IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
 ECHO.
-ECHO.Pi-hole will be installed in "%PRGF%" and Web Admin will listen on port %PORT%
-PAUSE 
-ECHO Downloading packages . . .
-IF NOT EXIST %TEMP%\Debian.tar.gz POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/cdf4465044cdfafbc1a0e0098cea5271a217d587/debian11.1b9e7597.tar.gz -Destination '%TEMP%\Debian.tar.gz'"
+ECHO.Installing Pi-hole in "%PRGF%" & ECHO AdminLTE will listen on port %PORT% & ECHO.
+SET IMG=Debian.tar.gz
+IF EXIST "%TEMP%\%IMG%" DEL "%TEMP%\%IMG%"
+:DLIMG
+ECHO Downloading minimal Debian image . . .
+POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -Destination '%TEMP%\%IMG%'" >NUL 2>&1
+IF NOT EXIST "%TEMP%\%IMG%" GOTO DLIMG
 %PRGF:~0,2% & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
-POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip -Destination PH4WSL1.zip ; Expand-Archive 'PH4WSL1.zip' -Force ; Remove-Item 'PH4WSL1.zip'"
+IF EXIST PH4WSL1.zip DEL PH4WSL1.zip
+:DLPRQ
+ECHO Downloading prerequisite packages . . .
+POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip -Destination PH4WSL1.zip" >NUL 2>&1
+IF NOT EXIST PH4WSL1.zip GOTO DLPRQ
+POWERSHELL.EXE -Command "Expand-Archive -Force 'PH4WSL1.zip' ; Remove-Item 'PH4WSL1.zip'
 POWERSHELL.EXE -Command "Expand-Archive -Force -Path '.\PH4WSL1\Pi-Hole-for-WSL1-master\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
 FOR /F "usebackq delims=" %%v IN (`PowerShell -Command "whoami"`) DO set "WAI=%%v"
 ICACLS "%PRGF%" /grant "%WAI%:(CI)(OI)F" > NUL
@@ -42,20 +50,21 @@ ECHO "%TEMP%\LxRunOffline.exe" ur -n Pi-hole ^> NUL 2^>^&1 ^& CD ..             
 ECHO ECHO. ^& ECHO Uninstall Complete!                                            >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO START /MIN "Uninstall" "CMD.EXE" /C RD /S /Q "%PRGF%"                        >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO.
-ECHO This will take a few minutes to complete . . .
 ECHO|SET /p="Installing Debian "
-START /WAIT /MIN "Installing Debian, one moment please..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\Debian.tar.gz" "-d" "."
+START /WAIT /MIN "Installing Debian, one moment please..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\%IMG%" "-d" "."
 ECHO|SET /p="-> Compacting install " 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
-%GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > "%PRGF%\logs\Pi-hole Compact Stage.log"
+%GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > NUL
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
-ECHO.-^> Install dependencies . . .
-%GO% "apt-get -y --allow-downgrades install ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb" > "%PRGF%\logs\Pi-hole Dependency Stage.log"
+ECHO.-^> Install Pi-hole prerequisites
+ECHO This will take a few minutes to complete . . .
+%GO% "apt-get -y --allow-downgrades install ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb" > "%PRGF%\logs\Pi-hole Prerequisites.log"
 %GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp  ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf" 
 %GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ;  sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces ; update-rc.d ssh disable"
-%GO% "IPC=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
-%GO% "IPF=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
+%GO% "IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
+%GO% "IPF=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
+ECHO Update setupVars.conf with IP %IPC% and interface %IPF% . . .
 %GO% "echo PIHOLE_DNS_1=127.0.0.1#5335 >  /etc/pihole/setupVars.conf"
 %GO% "echo IPV4_ADDRESS=%IPC%          >> /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_INTERFACE=%IPF%      >> /etc/pihole/setupVars.conf"
@@ -73,7 +82,7 @@ NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"    dir=in action=al
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"    dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 REM -- Install Pi-hole -- Unattended-upgrades will keep Debian updated so we will prevent the PH installer from running APT
-%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt"
+%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt"
 REM -- FixUp: Remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
@@ -88,7 +97,7 @@ ECHO @%GO% "cp /.ss /bin/ss ; apt clean all"                                    
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; PIHOLE_SKIP_OS_CHECK=true pihole reconfigure"                                >> "%PRGF%\Pi-hole Configuration.cmd"   
+ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; PIHOLE_SKIP_OS_CHECK=true pihole reconfigure"                                >> "%PRGF%\Pi-hole Configuration.cmd"   
 ECHO @%GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g' /var/www/html/admin/settings.php"                           >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's*DHCP</a>*DHCP</a-->*g' /var/www/html/admin/settings.php"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @%GO% "sed -i 's/= 80/= %PORT%/g'  /etc/lighttpd/lighttpd.conf"                                                                    >> "%PRGF%\Pi-hole Configuration.cmd"
@@ -98,7 +107,7 @@ ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"             
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                           > "%PRGF%\Pi-hole Web Admin.cmd"
 POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole 2>/dev/null'" > "%PRGF%\Pi-hole System Update.cmd"
-ECHO @%GO% "echo 'nameserver 1.1.1.1' > /etc/resolv.conf ; pihole updateGravity ; echo ; read -p 'Hit [Enter] to close this window...'"  > "%PRGF%\Pi-hole Gravity Update.cmd"   
+ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole updateGravity ; echo ; read -p 'Hit [Enter] to close this window...'"  > "%PRGF%\Pi-hole Gravity Update.cmd"   
 ECHO @ECHO OFF ^& %PRGF:~0,2% ^& CD "%PRGF%"                                                                                                                              > "%PRGF%\Gravity Sync - Setup.cmd"
 ECHO ECHO Gravity Sync Setup: Continuing will remove any existing sync configuration.  Close this window to abort or ^& PAUSE ^& ECHO.                                   >> "%PRGF%\Gravity Sync - Setup.cmd"
 ECHO %GO% "service ssh stop"                                                                                                                                             >> "%PRGF%\Gravity Sync - Setup.cmd"
@@ -113,7 +122,7 @@ START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"
 (ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole Inputs.log"
 DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole Inputs.log"
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
-ECHO.&SCHTASKS /CREATE /RU "%USERNAME%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
+ECHO.&SCHTASKS /CREATE /RU "%WAI%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
 ECHO.&ECHO.  *NOTE* Additional configuration steps are required
 ECHO.         for Pi-hole to start automatically at boot time.
 ECHO.     
