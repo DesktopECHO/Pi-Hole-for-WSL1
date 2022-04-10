@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220409 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220410 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -17,17 +17,17 @@ WSL.EXE -d Pi-hole -e . > "%TEMP%\InstCheck.tmp"
 FOR /f %%i in ("%TEMP%\InstCheck.tmp") do set CHKIN=%%~zi 
 IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
 ECHO.
-ECHO.Installing Pi-hole in "%PRGF%" & ECHO AdminLTE will listen on port %PORT% & ECHO.
+ECHO.Pi-hole install foler: "%PRGF%" & ECHO AdminLTE will listen on port %PORT% & PAUSE & ECHO.
 SET IMG=Debian.tar.gz
 IF EXIST "%TEMP%\%IMG%" DEL "%TEMP%\%IMG%"
-:DLIMG
 ECHO Downloading minimal Debian image . . .
+:DLIMG
 POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -Destination '%TEMP%\%IMG%'" >NUL 2>&1
 IF NOT EXIST "%TEMP%\%IMG%" GOTO DLIMG
 %PRGF:~0,2% & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 IF EXIST PH4WSL1.zip DEL PH4WSL1.zip
-:DLPRQ
 ECHO Downloading prerequisite packages . . .
+:DLPRQ
 POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip -Destination PH4WSL1.zip" >NUL 2>&1
 IF NOT EXIST PH4WSL1.zip GOTO DLPRQ
 POWERSHELL.EXE -Command "Expand-Archive -Force 'PH4WSL1.zip' ; Remove-Item 'PH4WSL1.zip'
@@ -59,9 +59,9 @@ SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c
 ECHO.-^> Install Pi-hole prerequisites
 ECHO This will take a few minutes to complete . . .
 %GO% "apt-get -y --allow-downgrades install ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb" > "%PRGF%\logs\Pi-hole Prerequisites.log"
-%GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp  ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf" 
-%GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ;  sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
-%GO% "mkdir /etc/pihole ; touch /etc/network/interfaces ; update-rc.d ssh disable"
+%GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/gs4 /usr/local/bin/ ; chmod +x /usr/local/bin/gs4" 
+%GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ; sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
+%GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
 %GO% "IPF=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
 ECHO Update setupVars.conf with IP %IPC% and interface %IPF% . . .
@@ -91,7 +91,10 @@ REM -- FixUp: Set Web Admin port to installer specification
 REM -- FixUp: Debug log parsing on WSL1 
 %GO% "sed -i 's* -f 3* -f 4*g'                                                                            /opt/pihole/piholeDebug.sh"
 %GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                                                           /opt/pihole/piholeDebug.sh"
-%GO% "sed -i 's*#Port 22*Port 5322*g' /etc/ssh/sshd_config ; sed -i 's*#PasswordAuthentication no*PasswordAuthentication no*g' /etc/ssh/sshd_config ; update-rc.d ssh disable ; touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list"
+%GO% "echo 'cname=$HOSTNAME.local,$HOSTNAME' > /etc/dnsmasq.d/05-pihole-custom-cname.conf"
+%GO% "sed -i 's*#Port 22*Port 5322*g' /etc/ssh/sshd_config ; sed -i 's*#PasswordAuthentication yes*PasswordAuthentication no*g' /etc/ssh/sshd_config ; update-rc.d ssh enable ; touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list"
+%GO% "adduser --disabled-password --gecos '' gs4wsl1 >/dev/null 2>&1 ; echo 'gs4wsl1 ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gs-nopasswd ; chmod 644 /etc/sudoers.d/gs-nopasswd ; su - gs4wsl1 -c 'ssh-keygen -t ed25519 -N '' -q -f ~/.ssh/id_rsa'" >NUL 2>&1
+%GO% "wget -q https://github.com/vmstan/gravity-sync/archive/refs/heads/4.0.0.zip -O gs.zip ; unzip -o -q gs.zip ; mkdir -p /etc/gravity-sync/.gs/templates ; cp ./gravity-sync-4.0.0/templates/* /etc/gravity-sync/.gs/templates/ ; cp ./gravity-sync-4.0.0/gravity-sync /usr/local/bin/ ; if ! [ -f ~/.ssh/id_rsa ] ; then ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_rsa > /dev/null ; fi ; cp ~/.ssh/id_rsa /etc/gravity-sync/gravity-sync.rsa ; cp ~/.ssh/id_rsa.pub /etc/gravity-sync/gravity-sync.rsa.pub" >NUL 2>&1 
 ECHO @WSLCONFIG /T Pi-hole ^& @ECHO [Pi-Hole Launcher]                                                                                   > "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "cp /.ss /bin/ss ; apt clean all"                                                                                            >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
