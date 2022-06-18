@@ -1,10 +1,16 @@
 #!/bin/bash
 clear
+read -p "Replication partner's first sync will 'pull' records from this Pi-hole, or 'push' records to this Pi-hole? [pull]: " PULLSH ; PULLSH=${PULLSH:-pull}
+if id -u "phgs" >/dev/null 2>&1; then
+ echo Gravity Sync account 'phgs' is present
+else
+ adduser --disabled-password --gecos '' phgs >/dev/null 2>&1 ; echo 'phgs ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gs-nopasswd ; chmod 644 /etc/sudoers.d/gs-nopasswd ; su - phgs -c 'ssh-keygen -t ed25519 -N '' -q -f ~/.ssh/id_rsa >/dev/null 2>&1'
+ mkdir -p /etc/gravity-sync/.gs/templates ; echo REMOTE_HOST=\'passive\' > /etc/gravity-sync/gravity-sync.conf ; echo REMOTE_USER=\'phgs\' >> /etc/gravity-sync/gravity-sync.conf ; echo GS_SSH_PORT=\'5322\' >> /etc/gravity-sync/gravity-sync.conf ; wget -q https://github.com/vmstan/gravity-sync/archive/refs/tags/v4.0.4.tar.gz ; tar -zxf v4.0.?.tar.gz ; cd gravity-sync-4.0.? ; cp ./templates/* /etc/gravity-sync/.gs/templates/ ; cp ./gravity-sync /usr/local/bin/ ; if ! [ -f ~/.ssh/id_rsa ] ; then ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_rsa ; fi ; cp ~/.ssh/id_rsa /etc/gravity-sync/gravity-sync.rsa ; cp ~/.ssh/id_rsa.pub /etc/gravity-sync/gravity-sync.rsa.pub
+fi
 IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+')
 sed -i 's*PasswordAuthentication no*PasswordAuthentication yes*g' /etc/ssh/sshd_config ; service ssh reload
 pass=$(xkcdpass -n 5 -d - ) ; echo phgs:$pass | sudo chpasswd > /dev/null 2>&1
-echo REMOTE_HOST=\'passive\' > /etc/gravity-sync/gravity-sync.conf ; echo REMOTE_USER=\'root\' >> /etc/gravity-sync/gravity-sync.conf
 echo Paste the following line into a terminal on the replication partner: ; echo
-echo "sudo su -c \"mkdir -p /etc/gravity-sync/.gs/templates ; echo REMOTE_HOST=\'$IPC\' > /etc/gravity-sync/gravity-sync.conf ; echo REMOTE_USER=\'phgs\' >> /etc/gravity-sync/gravity-sync.conf ; echo GS_SSH_PORT=\'5322\' >> /etc/gravity-sync/gravity-sync.conf ; wget -q https://github.com/vmstan/gravity-sync/archive/refs/heads/4.0.0.zip -O gs.zip ; unzip -o -q gs.zip ; cp ./gravity-sync-4.0.0/templates/* /etc/gravity-sync/.gs/templates/ ; cp ./gravity-sync-4.0.0/gravity-sync /usr/local/bin/ ; if ! [ -f ~/.ssh/id_rsa ] ; then ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_rsa ; fi ; cp ~/.ssh/id_rsa /etc/gravity-sync/gravity-sync.rsa ; cp ~/.ssh/id_rsa.pub /etc/gravity-sync/gravity-sync.rsa.pub ; SSHPASS='$pass' sshpass -e ssh-copy-id -f -p 5322 -o StrictHostKeyChecking=accept-new phgs@$IPC > /dev/null 2>&1; echo ; /usr/local/bin/gravity-sync auto ; /usr/local/bin/gravity-sync info"\"
-echo ; echo "IMPORTANT: Leave this window open unitl setup completes on the sync partner." ; read -p "           When setup is complete, please hit [Ehter] to close this window."
+echo "sudo su -c \"apt-get -qq install sshpass ; mkdir -p /etc/gravity-sync/.gs/templates ; echo REMOTE_HOST=\'$IPC\' > /etc/gravity-sync/gravity-sync.conf ; echo REMOTE_USER=\'phgs\' >> /etc/gravity-sync/gravity-sync.conf ; echo GS_SSH_PORT=\'5322\' >> /etc/gravity-sync/gravity-sync.conf ; wget -q https://github.com/vmstan/gravity-sync/archive/refs/tags/v4.0.4.tar.gz ; tar -zxf v4.0.?.tar.gz ; cd gravity-sync-4.0.? ; cp ./templates/* /etc/gravity-sync/.gs/templates/ ; cp ./gravity-sync /usr/local/bin/ ; if ! [ -f ~/.ssh/id_rsa ] ; then ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_rsa ; fi ; cp ~/.ssh/id_rsa /etc/gravity-sync/gravity-sync.rsa ; cp ~/.ssh/id_rsa.pub /etc/gravity-sync/gravity-sync.rsa.pub ; SSHPASS='$pass' sshpass -e ssh-copy-id -f -p 5322 -o StrictHostKeyChecking=accept-new phgs@$IPC > /dev/null 2>&1; echo ; /usr/local/bin/gravity-sync $PULLSH ; /usr/local/bin/gravity-sync auto ; /usr/local/bin/gravity-sync info"\"
+echo ; echo "IMPORTANT: Leave this window open unitl setup completes on the sync partner." ; read -p "           When setup is complete, please hit [Enter] to close this window."
 sed -i 's*PasswordAuthentication yes*PasswordAuthentication no*g' /etc/ssh/sshd_config ; echo ; service ssh reload ; sleep 3

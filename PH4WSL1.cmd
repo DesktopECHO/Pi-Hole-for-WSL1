@@ -8,7 +8,7 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220415 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220618 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -64,7 +64,7 @@ ECHO This will take a few minutes to complete . . .
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
 %GO% "IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
 %GO% "IPF=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
-ECHO Update setupVars.conf with IP %IPC% and interface %IPF% . . .
+ECHO Update setupVars.conf to use IP address %IPC% on interface %IPF% . . .
 %GO% "echo PIHOLE_DNS_1=127.0.0.1#5335 >  /etc/pihole/setupVars.conf"
 %GO% "echo IPV4_ADDRESS=%IPC%          >> /etc/pihole/setupVars.conf"
 %GO% "echo PIHOLE_INTERFACE=%IPF%      >> /etc/pihole/setupVars.conf"
@@ -92,9 +92,7 @@ REM -- FixUp: Debug log parsing on WSL1
 %GO% "sed -i 's* -f 3* -f 4*g'                                                                            /opt/pihole/piholeDebug.sh"
 %GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                                                           /opt/pihole/piholeDebug.sh"
 %GO% "hn=`hostname` ; echo cname=$hn.gravitysync,$hn > /etc/dnsmasq.d/05-pihole-custom-cname.conf"
-%GO% "sed -i 's*#Port 22*Port 5322*g' /etc/ssh/sshd_config ; sed -i 's*#PasswordAuthentication yes*PasswordAuthentication no*g' /etc/ssh/sshd_config ; update-rc.d ssh enable ; touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; chown pihole:pihole /etc/pihole/custom.list ; chmod 644 /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/local.list ; chmod 644 /etc/pihole/local.list"
-%GO% "adduser --disabled-password --gecos '' phgs >/dev/null 2>&1 ; echo 'phgs ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gs-nopasswd ; chmod 644 /etc/sudoers.d/gs-nopasswd ; su - phgs -c 'ssh-keygen -t ed25519 -N '' -q -f ~/.ssh/id_rsa'" >NUL 2>&1
-%GO% "wget -q https://github.com/vmstan/gravity-sync/archive/refs/heads/4.0.0.zip -O /tmp/gs.zip ; unzip -o -q /tmp/gs.zip -d /tmp ; mkdir -p /etc/gravity-sync/.gs ; cp -Rpf /tmp/gravity-sync-4.0.0/* /etc/gravity-sync/.gs/ ; cp /etc/gravity-sync/.gs/gravity-sync /etc/gravity-sync ; ln -s /etc/gravity-sync/gravity-sync /usr/local/bin/ ; cp /home/phgs/.ssh/id_rsa /etc/gravity-sync/gravity-sync.rsa ; cp /home/phgs/.ssh/id_rsa.pub /etc/gravity-sync/gravity-sync.rsa.pub" >NUL 2>&1 
+%GO% "sed -i 's*#Port 22*Port 5322*g' /etc/ssh/sshd_config ; sed -i 's*#PasswordAuthentication yes*PasswordAuthentication no*g' /etc/ssh/sshd_config ; update-rc.d ssh enable ; touch /var/run/syslog.pid ; chmod 600 /var/run/syslog.pid ; touch /etc/pihole/custom.list ; touch /etc/pihole/local.list ; chown pihole:pihole /etc/pihole/*.list ; chmod 644 /etc/pihole/*.list"
 ECHO @WSLCONFIG /T Pi-hole ^& @ECHO [Pi-Hole Launcher]                                                                                   > "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "cp /.ss /bin/ss ; apt clean all"                                                                                            >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
@@ -110,8 +108,8 @@ ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                  
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                           > "%PRGF%\Pi-hole Web Admin.cmd"
 POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole 2>/dev/null'" > "%PRGF%\Pi-hole System Update.cmd"
 ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole updateGravity ; echo ; read -p 'Hit [Enter] to close this window...'"  > "%PRGF%\Pi-hole Gravity Update.cmd"   
-ECHO @ECHO OFF ^& %PRGF:~0,2% ^& CD "%PRGF%"                                                                                             > "%PRGF%\Gravity Sync - Add new member.cmd"
-ECHO %GO% "gs4wsl1"                                                                                                                     >> "%PRGF%\Gravity Sync - Add new member.cmd"
+ECHO @ECHO OFF ^& %PRGF:~0,2% ^& CD "%PRGF%"                                                                                             > "%PRGF%\Gravity Sync.cmd"
+ECHO %GO% "gs4wsl1"                                                                                                                     >> "%PRGF%\Gravity Sync.cmd"
 RD /S /Q "%PRGF%\PH4WSL1" & %GO% "echo ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
 START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"  
 (ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole Inputs.log"

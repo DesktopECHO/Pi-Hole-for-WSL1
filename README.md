@@ -1,15 +1,15 @@
 # PH4WSL1.cmd &nbsp;· &nbsp;Pi-hole for Windows
 ![image](https://user-images.githubusercontent.com/33142753/160953270-8f874a4d-ef32-4d66-adb8-24a628cd6aad.png)
 
-Install script to help [Pi-hole](https://github.com/pi-hole) run properly under Windows 10/11 and Server 2019/2022 by leveraging the Windows Subsystem for Linux, renamed later to WSL1.  Because WSL1 does not require a hypervisor and full Linux kernel it's the most lightweight way to run Pi-hole on Windows.  Pi-hole and associated Linux binaries are visible in Task Manager right alongside your Windows apps (See Windows 11 screenshot above.)  
+Install script to help [Pi-hole](https://github.com/pi-hole) run semi-natively under Windows 10/11 and Server 2019/2022 by leveraging the Windows Subsystem for Linux, renamed later to WSL1.  Because WSL1 does not require a hypervisor and full Linux kernel it's the most lightweight way to run Pi-hole on Windows.  Pi-hole and associated Linux binaries are visible in Task Manager right alongside your Windows apps (See Windows 11 screenshot above.)  
 
- - For an overview, watch this 3-minute [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
- - [Short video](https://www.reddit.com/r/pihole/comments/scju1d/pihole_for_windows_unbound_gravity_sync) on Reddit of two Windows PCs installing Pi-hole and establishing a DNS replication partnership
+ - Brief [installation walk-through](https://youtu.be/keDtJwK65Dw) on YouTube
  - Jump to [Install Instructions](#INSTALL-INSTRUCTIONS)
 
-## Latest Updates for 2022-01-24
+## Latest Updates for 2022-06-24
 
- - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) setup script lets you easily synchronize two Pi-hole for Windows instances.  To set this up, run ``Gravity Sync - Setup.cmd`` on both Pi-hole for Windows instances.  Synchronization runs every 5-30 minutes (you will be prompted to set this interval) and can also be kicked-off manually by running ``Gravity Sync - Smart Sync.cmd``
+ - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) lets you easily synchronize multiple Pi-hole instances.  Run ``Gravity Sync.cmd`` and copy/paste the command into the console of another Debian or Ubuntu-based Pi-hole.
+ ![gs](https://user-images.githubusercontent.com/33142753/175460831-32f62c83-34c1-4860-b44b-7204f544a10f.png)
  - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
  - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set the default Pi-hole configuration to use encrypted DNS.
  - Updated to Debian 11
