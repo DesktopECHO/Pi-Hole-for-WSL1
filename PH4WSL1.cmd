@@ -8,7 +8,8 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20220618 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20221002 & ECHO.-------------------------------- & ECHO.
+ECHO AdminLTE website will listen on port %PORT%
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -17,7 +18,6 @@ WSL.EXE -d Pi-hole -e . > "%TEMP%\InstCheck.tmp"
 FOR /f %%i in ("%TEMP%\InstCheck.tmp") do set CHKIN=%%~zi 
 IF %CHKIN% == 0 (ECHO. & ECHO Existing Pi-hole installation detected, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
 ECHO.
-ECHO.Pi-hole install foler: "%PRGF%" & ECHO Pi-hole WebGUI (AdminLTE) will listen on port %PORT% & PAUSE & ECHO.
 SET IMG=Debian.tar.gz
 IF EXIST "%TEMP%\%IMG%" DEL "%TEMP%\%IMG%"
 ECHO Downloading minimal Debian image . . .
@@ -49,16 +49,14 @@ ECHO %PRGF:~0,2% ^& CD "%PRGF%" ^& WSLCONFIG /T Pi-hole ^> NUL 2^>^&1           
 ECHO "%TEMP%\LxRunOffline.exe" ur -n Pi-hole ^> NUL 2^>^&1 ^& CD ..               >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO ECHO. ^& ECHO Uninstall Complete!                                            >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO START /MIN "Uninstall" "CMD.EXE" /C RD /S /Q "%PRGF%"                        >> "%PRGF%\Pi-hole Uninstall.cmd"
-ECHO.
 ECHO|SET /p="Installing Debian "
 START /WAIT /MIN "Installing Debian, one moment please..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\%IMG%" "-d" "."
-ECHO|SET /p="-> Compacting install " 
+ECHO|SET /p="-> Compacting install . . ." 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > NUL
-%GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev"
-ECHO.-^> Install Pi-hole prerequisites
-ECHO This will take a few minutes to complete . . .
-%GO% "apt-get -y --allow-downgrades install ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb" > "%PRGF%\logs\Pi-hole Prerequisites.log"
+%GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; echo 'echo N 2' > /usr/sbin/runlevel ; chmod +x /usr/sbin/runlevel ; dpkg-divert --local --rename --add /sbin/initctl ; ln -fs /bin/true /sbin/initctl ; echo 'exit 0' > /usr/sbin/policy-rc.d ; chmod +x /usr/sbin/policy-rc.d" > NUL
+ECHO.&ECHO Please wait a few minutes for package installer . . .
+%GO% "dpkg -i --force-all ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb 2> /dev/null" > "%PRGF%\logs\Pi-hole Prerequisites.log" & ECHO.
 %GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/gs4wsl1 /usr/local/bin/ ; chmod +x /usr/local/bin/gs4wsl1"
 %GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ; sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces"
@@ -82,7 +80,7 @@ NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"    dir=in action=al
 NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"    dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
 REM -- Install Pi-hole -- Unattended-upgrades will keep Debian updated so we will prevent the PH installer from running APT
-%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt"
+%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt; update-rc.d pihole-FTL remove ; update-rc.d pihole-FTL defaults"
 REM -- FixUp: Remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
