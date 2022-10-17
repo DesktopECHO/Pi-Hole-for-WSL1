@@ -46,11 +46,14 @@ Download and configuration steps complete in 2-15 minutes, depending on your har
 
 # Additional Info
 
+* The following commands are located in the install folder and let you update or modify Pi-hole.
+   - `Pi-hole System Update`    🠞  [_pihole -up_](https://docs.pi-hole.net/core/pihole-command/#update)
+   - `Pi-hole Configuration`    🠞  [_pihole -r_](https://docs.pi-hole.net/core/pihole-command/#reconfigure)
+   - `Pi-hole Gravity Update`  🠞  [_pihole updateGravity_](https://docs.pi-hole.net/core/pihole-command/#gravity)
+
 * DHCP Server is not supported and is disabled in the Pi-hole Web UI.
 
 * IPv6 DNS now works in addition to IPv4.
-
-* To reset or reconfigure Pi-Hole, run **Pi-hole Configuration.cmd** in the Pi-hole install folder.
 
 * To completely uninstall Pi-Hole, open the Pi-hole install folder in Windows Explorer.  Right-click ``Pi-hole Uninstall.cmd`` and click **Run As Administrator.**  If you are uninstalling or reinstalling and need to retain your Pi-hole's configuration, export it first via the web interface. 
 
