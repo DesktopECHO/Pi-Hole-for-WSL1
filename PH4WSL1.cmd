@@ -8,9 +8,9 @@ FOR /f %%i in ("%TEMP%\PortCheck.tmp") do set SIZE=%%~zi
 IF %SIZE% gtr 0 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20221002 & ECHO.-------------------------------- & ECHO.
-ECHO AdminLTE website will listen on port %PORT%
-SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set location for 'Pi-hole' install folder or hit enter for default [%PROGRAMFILES%] -> "
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20230301 & ECHO.-------------------------------- & ECHO.
+IF %SIZE% gtr 0 ECHO AdminLTE website will listen on port %PORT% because port 80 is already in use. 
+SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set Pi-hole install location, or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
 IF EXIST "%PRGF%" (ECHO. & ECHO Pi-hole folder already exists, uninstall Pi-hole first. & PAUSE & GOTO INPUTS)
@@ -40,11 +40,9 @@ ECHO )ELSE ^(ECHO Please run uninstaller with admin rights! ^&^& pause ^&^& EXIT
 ECHO PAUSE ^& ECHO. ^& ECHO Uninstalling Pi-hole . . .                            >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO COPY /Y "%PRGF%\LxRunOffline.exe" "%TEMP%" ^> NUL 2^>^&1                     >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO SCHTASKS /Delete /TN:"Pi-hole for Windows" /F ^> NUL 2^>^&1                  >> "%PRGF%\Pi-hole Uninstall.cmd"
-ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole FTL"                       >> "%PRGF%\Pi-hole Uninstall.cmd"
+ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole DNS Server"                >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole Web Admin"                 >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole Gravity Sync"              >> "%PRGF%\Pi-hole Uninstall.cmd"
-ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole DNS (TCP)"                 >> "%PRGF%\Pi-hole Uninstall.cmd"
-ECHO NetSH AdvFirewall Firewall del rule name="Pi-hole DNS (UDP)"                 >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO %PRGF:~0,2% ^& CD "%PRGF%" ^& WSLCONFIG /T Pi-hole ^> NUL 2^>^&1             >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO "%TEMP%\LxRunOffline.exe" ur -n Pi-hole ^> NUL 2^>^&1 ^& CD ..               >> "%PRGF%\Pi-hole Uninstall.cmd"
 ECHO ECHO. ^& ECHO Uninstall Complete!                                            >> "%PRGF%\Pi-hole Uninstall.cmd"
@@ -53,15 +51,18 @@ ECHO|SET /p="Installing Debian "
 START /WAIT /MIN "Installing Debian, one moment please..." "LxRunOffline.exe" "i" "-n" "Pi-hole" "-f" "%TEMP%\%IMG%" "-d" "."
 ECHO|SET /p="-> Compacting install . . ." 
 SET GO="%PRGF%\LxRunOffline.exe" r -n Pi-hole -c 
+NetSH AdvFirewall Firewall add rule name="Pi-hole DNS Server"   dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"    dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
+NetSH AdvFirewall Firewall add rule name="Pi-hole Gravity Sync" dir=in action=allow program="%PRGF%\rootfs\usr\sbin\sshd" enable=yes > NUL
 %GO% "apt-get -y purge dmsetup libapparmor1 libargon2-1 libdevmapper1.02.1 libestr0 libfastjson4 liblognorm5 rsyslog systemd systemd-sysv vim-common vim-tiny xxd --autoremove --allow-remove-essential" > NUL
 %GO% "rm -rf /etc/apt/apt.conf.d/20snapd.conf /etc/rc2.d/S01whoopsie /etc/init.d/console-setup.sh /etc/init.d/udev ; echo 'echo N 2' > /usr/sbin/runlevel ; chmod +x /usr/sbin/runlevel ; dpkg-divert --local --rename --add /sbin/initctl ; ln -fs /bin/true /sbin/initctl ; echo 'exit 0' > /usr/sbin/policy-rc.d ; chmod +x /usr/sbin/policy-rc.d" > NUL
 ECHO.&ECHO Please wait a few minutes for package installer . . .
-%GO% "dpkg -i --force-all ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb 2> /dev/null" > "%PRGF%\logs\Pi-hole Prerequisites.log" & ECHO.
+%GO% "dpkg -i --force-all ./PH4WSL1/Pi-Hole-for-WSL1-master/deb/*.deb 2> /dev/null" > "%PRGF%\logs\Pi-hole package install.log" & ECHO.
 %GO% "cp ./PH4WSL1/Pi-Hole-for-WSL1-master/ss /.ss ; chmod +x /.ss ; cp /.ss /bin/ss ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/pi-hole.conf /etc/unbound/unbound.conf.d/pi-hole.conf ; cp ./PH4WSL1/Pi-Hole-for-WSL1-master/gs4wsl1 /usr/local/bin/ ; chmod +x /usr/local/bin/gs4wsl1"
 %GO% "sed -i 's#^ssh             22/tcp#ssh           5322/tcp#g' /etc/services ; sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config"
 %GO% "mkdir /etc/pihole ; touch /etc/network/interfaces ; echo '13.107.4.52 www.msftconnecttest.com' > /etc/pihole/custom.list ; echo '131.107.255.255 dns.msftncsi.com' >> /etc/pihole/custom.list"
-%GO% "IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IPC.tmp && set /p IPC=<logs\IPC.tmp
-%GO% "IPF=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\IPF.tmp && set /p IPF=<logs\IPF.tmp
+%GO% "IPC=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPC=$(ip -o addr show | grep $IPC) ; echo $IPC | sed 's/.*inet //g' | sed 's/\s.*$//'" > logs\IP.txt && set /p IPC=<logs\IP.txt
+%GO% "IPF=$(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; IPF=$(ip -o addr show | grep $IPF) ; echo $IPF | sed 's/.*: //g'    | sed 's/\s.*$//'" > logs\Interface.txt && set /p IPF=<logs\Interface.txt
 ECHO Update setupVars.conf to use IP address %IPC% on interface %IPF% . . .
 %GO% "echo PIHOLE_DNS_1=127.0.0.1#5335 >  /etc/pihole/setupVars.conf"
 %GO% "echo IPV4_ADDRESS=%IPC%          >> /etc/pihole/setupVars.conf"
@@ -73,19 +74,14 @@ ECHO Update setupVars.conf to use IP address %IPC% on interface %IPF% . . .
 %GO% "echo LIGHTTPD_ENABLED=true       >> /etc/pihole/setupVars.conf"
 %GO% "echo DNSMASQ_LISTENING=all       >> /etc/pihole/setupVars.conf"
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
-NetSH AdvFirewall Firewall add rule name="Pi-hole FTL"          dir=in action=allow program="%PRGF%\rootfs\usr\bin\pihole-ftl" enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole Web Admin"    dir=in action=allow program="%PRGF%\rootfs\usr\sbin\lighttpd"  enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole Gravity Sync" dir=in action=allow program="%PRGF%\rootfs\usr\sbin\sshd" enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (TCP)"    dir=in action=allow protocol=TCP localport=53 enable=yes > NUL
-NetSH AdvFirewall Firewall add rule name="Pi-hole DNS (UDP)"    dir=in action=allow protocol=UDP localport=53 enable=yes > NUL
 ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
-REM -- Install Pi-hole -- Unattended-upgrades will keep Debian updated so we will prevent the PH installer from running APT
+REM -- Install Pi-hole -- Prevent the Pi-hole installer from running APT on this one occasion.  Unattended-upgrades package will keep Debian updated moving forward 
 %GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt; update-rc.d pihole-FTL remove ; update-rc.d pihole-FTL defaults"
 REM -- FixUp: Remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
 REM -- FixUp: Set Web Admin port to installer specification
-%GO% "echo server.port := %PORT% > /etc/lighttpd/external.conf"
+%GO% "echo server.port := %PORT% > /etc/lighttpd/conf-enabled/07-port.conf"
 REM -- FixUp: Debug log parsing on WSL1 
 %GO% "sed -i 's* -f 3* -f 4*g'                                                                            /opt/pihole/piholeDebug.sh"
 %GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                                                           /opt/pihole/piholeDebug.sh"
@@ -110,12 +106,12 @@ ECHO @ECHO OFF ^& %PRGF:~0,2% ^& CD "%PRGF%"                                    
 ECHO %GO% "gs4wsl1"                                                                                                                     >> "%PRGF%\Gravity Sync.cmd"
 RD /S /Q "%PRGF%\PH4WSL1" & %GO% "echo ; echo -n 'Pi-hole Web Admin, ' ; pihole -a -p"
 START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"  
-(ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole Inputs.log"
-DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole Inputs.log"
+(ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole install settings.log"
+DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole install settings.log"
 SET STTR="%PRGF%\Pi-hole Launcher.cmd"
 ECHO.&SCHTASKS /CREATE /RU "%WAI%" /RL HIGHEST /SC ONSTART /TN "Pi-hole for Windows" /TR '%STTR%' /F
-ECHO.&ECHO.  *NOTE* Additional configuration steps are required
-ECHO.         for Pi-hole to start automatically at boot time.
+ECHO.&ECHO.  *NOTE* Additional configuration steps are required if you want
+ECHO.         Pi-hole to run automatically at Windows start-up.
 ECHO.     
 ECHO.       - Open Windows Task Scheduler (taskschd.msc)
 ECHO.         Right-click the task "Pi-hole for Windows" and click "Edit"
@@ -127,5 +123,5 @@ ECHO.       - On the Conditions tab, un-check the option
 ECHO.         "Start the task only if the computer is on AC power"
 ECHO. & CD .. & PAUSE
 START http://%COMPUTERNAME%:%PORT%/admin
-ECHO.Pi-hole for Windows - Installation complete! & ECHO.
+%GO% "echo Install complete!  Devices on your network reach this Pi-hole via IP $(ip route get 9.9.9.9 | grep -oP 'src \K\S+') ; echo ' '"
 :ENDSCRIPT
