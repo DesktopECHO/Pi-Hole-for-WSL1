@@ -22,7 +22,7 @@ SET IMG=Debian.tar.gz
 IF EXIST "%TEMP%\%IMG%" DEL "%TEMP%\%IMG%"
 ECHO Downloading minimal Debian image . . .
 :DLIMG
-POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz?inline=false -Destination '%TEMP%\%IMG%'" >NUL 2>&1
+POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://salsa.debian.org/debian/WSL/-/raw/58c084c371200b7b1f24b18e80f5f35e117ce472/x64/install.tar.gz?inline=false -Destination '%TEMP%\%IMG%'" >NUL 2>&1
 IF NOT EXIST "%TEMP%\%IMG%" GOTO DLIMG
 %PRGF:~0,2% & MKDIR "%PRGF%" & CD "%PRGF%" & MKDIR "logs" 
 IF EXIST PH4WSL1.zip DEL PH4WSL1.zip
