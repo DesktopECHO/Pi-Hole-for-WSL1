@@ -28,7 +28,7 @@ IF NOT EXIST "%TEMP%\%IMG%" GOTO DLIMG
 IF EXIST PH4WSL1.zip DEL PH4WSL1.zip
 ECHO Downloading prerequisite packages . . .
 :DLPRQ
-POWERSHELL.EXE -Command "Start-BitsTransfer -Source https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip -Destination PH4WSL1.zip" >NUL 2>&1
+POWERSHELL.EXE -Command "Invoke-WebRequest -Uri 'https://github.com/DesktopECHO/Pi-Hole-for-WSL1/archive/refs/heads/master.zip' -OutFile 'PH4WSL1.zip'" > NUL 2>&1
 IF NOT EXIST PH4WSL1.zip GOTO DLPRQ
 POWERSHELL.EXE -Command "Expand-Archive -Force 'PH4WSL1.zip' ; Remove-Item 'PH4WSL1.zip'
 POWERSHELL.EXE -Command "Expand-Archive -Force -Path '.\PH4WSL1\Pi-Hole-for-WSL1-master\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc.zip' -DestinationPath '%TEMP%' ; Copy-Item '%TEMP%\LxRunOffline-v3.5.0-33-gbdc6d7d-msvc\LxRunOffline.exe' '%PRGF%'"
