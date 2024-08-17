@@ -69,9 +69,9 @@ ECHO Update setupVars.conf to use IP address %IPC% on interface %IPF% . . .
 %GO% "echo LIGHTTPD_ENABLED=true       >> /etc/pihole/setupVars.conf"
 %GO% "echo DNSMASQ_LISTENING=all       >> /etc/pihole/setupVars.conf"
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
-ECHO. & ECHO.Launching Pi-hole installer... & ECHO.
+ECHO. & ECHO.Launching Pi-hole v5 install... 
 REM -- Install Pi-hole -- Prevent the Pi-hole installer from running APT on this one occasion.  Unattended-upgrades package will keep Debian updated moving forward 
-%GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt; update-rc.d pihole-FTL remove ; update-rc.d pihole-FTL defaults"
+START /MIN /WAIT "Pi-hole v5 install..." %GO% "mv /usr/bin/apt /usr/bin/apt.ph ; echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended ; mv /usr/bin/apt.ph /usr/bin/apt; update-rc.d pihole-FTL remove ; update-rc.d pihole-FTL defaults"
 REM -- FixUp: Remove DHCP server tab 
 %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
 %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
@@ -102,8 +102,8 @@ ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole updateGravity 
 START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"  
 (ECHO.Input Specifications: & ECHO. && ECHO. Location: %PRGF% && ECHO.Interface: %IPF% && ECHO.  Address: %IPC% && ECHO.     Port: %PORT% && ECHO.     Temp: %TEMP% && ECHO.) >  "%PRGF%\logs\Pi-hole install settings.log"
 DIR "%PRGF%" >> "%PRGF%\logs\Pi-hole install settings.log"
-ECHO.&ECHO Setting up for v6 install...
-START /MIN /WAIT "Prepare for v6" %GO% "apt-get -yqq purge lighttpd *php* --autoremove"
+ECHO.&ECHO Preparing Pi-hole v6 upgrade...
+START /MIN /WAIT "Preparing Pi-hole v6 upgrade..." %GO% "apt-get -yqq purge lighttpd *php* --autoremove"
 START /MIN "Gravity Tempfile Monitor" %GO% "while [ ! -f /tmp/done ] ; do sed -i '/gravityTEMPfile=/c\gravityTEMPfile=\/dev\/shm/gravity.db_temp' /opt/pihole/gravity.sh ; sleep .2 ; done"
 %GO% "echo "development-v6" | sudo tee /etc/pihole/ftlbranch ; echo ; yes | pihole checkout core development-v6"
 %GO% "sed -i 's/  useWAL = true/  useWAL = false/g' /etc/pihole/pihole.toml ; sed -i 's/  port = \"8.*/  port = \"60080,[::]:60080,60443s,[::]:60443s\"/g'  /etc/pihole/pihole.toml"
