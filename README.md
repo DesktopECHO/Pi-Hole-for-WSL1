@@ -6,12 +6,11 @@ Install script to help [Pi-hole](https://github.com/pi-hole) run semi-natively u
  - Brief [walk-through video](https://youtu.be/keDtJwK65Dw) of the install process on YouTube
  - Jump to [Install Instructions](#INSTALL-INSTRUCTIONS)
 
-## Latest Updates for 2022-06-24
+## Latest Updates for 2025-02-19
 
- - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) lets you easily synchronize multiple Pi-hole instances.  Run ``Gravity Sync.cmd`` and copy/paste the command into the console of another Debian or Ubuntu-based Pi-hole.
- - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
+ - Updated for Pi-hole v6
  - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set the default Pi-hole configuration to use encrypted DNS.
- - Updated to Debian 11
+ - Updated to Debian 12
  - Fixes for Windows 11 compatibility 
  - Added links in the install folder for ``Pi-hole System Update.cmd``, ``Pi-hole Gravity Update.cmd``, and ``Pi-hole Web Admin.cmd`` 
  - Debian updates regularly with [unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades) 
