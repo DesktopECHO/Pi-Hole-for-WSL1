@@ -6,12 +6,12 @@ Install script to help [Pi-hole](https://github.com/pi-hole) run semi-natively u
  - Brief [walk-through video](https://youtu.be/keDtJwK65Dw) of the install process on YouTube
  - Jump to [Install Instructions](#INSTALL-INSTRUCTIONS)
 
-## Latest Updates for 2022-06-24
+## Latest Updates for 2024-09-05
 
- - [**Gravity Sync**](https://github.com/vmstan/gravity-sync) lets you easily synchronize multiple Pi-hole instances.  Run ``Gravity Sync.cmd`` and copy/paste the command into the console of another Debian or Ubuntu-based Pi-hole.
+ - v6 Beta
  - Less Pi-hole code is patched since upstream moved from ``lsof`` to ``ss`` for port and service checking.  Now a wrapper for ``ss`` on WSL1 reformats the output of ``netstat.exe`` into something Pi-hole can work with.
  - Integrated [**Unbound DNS Resolver**](https://www.nlnetlabs.nl/projects/unbound/about) and set the default Pi-hole configuration to use encrypted DNS.
- - Updated to Debian 11
+ - Updated to Debian 12
  - Fixes for Windows 11 compatibility 
  - Added links in the install folder for ``Pi-hole System Update.cmd``, ``Pi-hole Gravity Update.cmd``, and ``Pi-hole Web Admin.cmd`` 
  - Debian updates regularly with [unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades) 
@@ -24,15 +24,18 @@ Pi-hole for Windows can be used to block ads and encrypt DNS queries for your lo
 Pi-hole for Windows is a great way to [upcycle](https://en.wikipedia.org/wiki/Upcycling) old hardware. If you have a Windows PC, tablet, or HDMI stick with 1GB RAM and it can boot Windows 10 x64 you are good to go.  If you don't have a Windows license, Hyper-V Server 2019 works and is a [free download](https://www.microsoft.com/en-us/evalcenter/evaluate-hyper-v-server-2019) from Microsoft. 
 
 # INSTALL INSTRUCTIONS
-1. **Download** the installer script -> [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/master/PH4WSL1.cmd)
-2. Right click the file and select **"Run as Administrator."**  
+Download and _'**Run as admin**'_ the [**PH4WSL1.cmd**](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/v6/PH4WSL1.cmd) installer.  
+
+Alternatively, run the following command from an administrative CMD.EXE or PowerShell console:
+
+`````PowerShell -executionpolicy bypass -command "Invoke-WebRequest https://github.com/DesktopECHO/Pi-Hole-for-WSL1/raw/v6/PH4WSL1.cmd -UseBasicParsing -OutFile PH4WSL1.cmd ; .\PH4WSL1.cmd"`````
 
 Download and configuration steps complete in 2-15 minutes, depending on your hardware and antivirus solution.  If Windows Defender is active the installation will take longer.  Some users have reported issues with [other antivirus products](https://github.com/DesktopECHO/Pi-Hole-for-WSL1/issues/14) during installation.
 
 ## This script performs the following steps:
 
 1. Enable WSL1 and install a Debian-supplied image from [**salsa.debian.org**](https://salsa.debian.org/debian/WSL/-/raw/master/x64/install.tar.gz) 
-2. Download the [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian 11 (Bullseye) in WSL1
+2. Download the [**LxRunOffline**](https://github.com/DDoSolitary/LxRunOffline) distro manager and install Debian 12 (Bookworm) in WSL1
 3. Perform interface/gateway detection and create a **/etc/pihole/setupVars.conf** file for automated install
 4. Run the [official installer](https://github.com/pi-hole/pi-hole/#one-step-automated-install) from Pi-hole©
 5. Create shim so Pi-hole gets the expected output from ``/bin/ss`` along with other fix-ups for WSL1 compatibility.
