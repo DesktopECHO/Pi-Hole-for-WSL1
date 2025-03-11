@@ -5,7 +5,7 @@ POWERSHELL -Command "$WSL = Get-WindowsOptionalFeature -Online -FeatureName 'Mic
 SET PORT=60080
 :INPUTS
 CLS
-ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20250223 & ECHO.-------------------------------- & ECHO.
+ECHO.-------------------------------- & ECHO. Pi-hole for Windows v.20250312 & ECHO.-------------------------------- & ECHO.
 SET PRGP=%PROGRAMFILES%&SET /P "PRGP=Set Pi-hole install location, or hit enter for default [%PROGRAMFILES%] -> "
 IF %PRGP:~-1%==\ SET PRGP=%PRGP:~0,-1%
 SET PRGF=%PRGP%\Pi-hole
@@ -66,32 +66,33 @@ ECHO Update setupVars.conf to use IP address %IPC% on interface %IPF% . . .
 %GO% "echo WEBPASSWORD=                >> /etc/pihole/setupVars.conf"
 ECHO. & ECHO.Launching Pi-hole v6 install... 
 REM -- Install Pi-hole 
-START /MIN "Gravity Tempfile Monitor" %GO% "while [ ! -f /tmp/done ] ; do sed -i '/gravityTEMPfile=/c\gravityTEMPfile=\/dev\/shm/gravity.db_temp' /opt/pihole/gravity.sh ; sleep .2 ; done"
+START /MIN "Gravity Tempfile Monitor" %GO% "while [ ! -f /tmp/done ] ; do sed -i '/gravityTEMPfile=/c\gravityTEMPfile=\/dev\/shm/gravity.db_temp' /opt/pihole/gravity.sh ; clear ; sleep .2 ; done"
 %GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; curl -L https://install.Pi-hole.net | bash /dev/stdin --unattended ; update-rc.d pihole-FTL defaults"
-REM -- FixUp: Remove DHCP server tab 
-REM %GO% "sed -i 's*<a href=\"#piholedhcp\"*<!--a href=\"#piholedhcp\"*g'                                     /var/www/html/admin/settings.php"
-REM %GO% "sed -i 's*DHCP</a>*DHCP</a-->*g'                                                                    /var/www/html/admin/settings.php"
 REM -- FixUp: Debug log parsing on WSL1 
-%GO% "sed -i 's* -f 3* -f 4*g'                                                                            /opt/pihole/piholeDebug.sh"
-%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g'                                                           /opt/pihole/piholeDebug.sh"
+%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"
+%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"
 %GO% "hn=`hostname` ; echo cname=$hn.gravitysync,$hn > /etc/dnsmasq.d/05-pihole-custom-cname.conf"
 %GO% "sed -i 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config ; sed -i 's*#Port 22*Port 5322*g' /etc/ssh/sshd_config ; sed -i 's*#PasswordAuthentication yes*PasswordAuthentication no*g' /etc/ssh/sshd_config"
+%GO% "echo '<meta http-equiv=refresh content=0;url=/admin>' > /var/www/html/index.html"
 ECHO @WSLCONFIG /T Pi-hole ^& @ECHO [Pi-Hole Launcher]                                                                                   > "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "cp /.ss /bin/ss ; apt clean all"                                                                                            >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "sed -i '/settings\/dhcp/,+4d' /var/www/html/admin/scripts/lua/sidebar.lp"                                                   >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "sed -i 's/text: interface.name/text: interface.name, \/\/ /g' /var/www/html/admin/scripts/js/interfaces.js"                 >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "sed -i 's|gravityTEMPfile=\"${GRAVITYDB}_temp\"|gravityTEMPfile=\"/dev/shm/gravity.db_temp\"|' /opt/pihole/gravity.sh"      >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "sed -i '/dns.listeningMode/,/data-configkeys=/d'  /var/www/html/admin/settings-dns.lp"                                      >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "pihole-FTL --config dns.reply.host.IPv4 $(ip route get 9.9.9.9 | grep -oP 'src \K\S+') > /dev/null"                         >> "%PRGF%\Pi-hole Launcher.cmd"
+ECHO @%GO% "pihole-FTL --config dns.reply.host.force4 true > /dev/null"                                                                 >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @%GO% "for rc_service in /etc/rc2.d/S*; do [[ -e $rc_service ]] && $rc_service start ; done ; sleep 3"                             >> "%PRGF%\Pi-hole Launcher.cmd"
 ECHO @EXIT                                                                                                                              >> "%PRGF%\Pi-hole Launcher.cmd"
-ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @START /MIN "Gravity Tempfile Monitor" %GO% "while : ; do sed -i 's|gravityTEMPfile=\"${GRAVITYDB}_temp\"|gravityTEMPfile=\"/dev/shm/gravity.db_temp\"|' /etc/.pihole/gravity.sh ; sleep .1 ; done" >> "%PRGF%\Pi-hole Configuration.cmd" 
-ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole reconfigure"                                                          >> "%PRGF%\Pi-hole Configuration.cmd"   
-ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                                                        >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                                                       >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                                                     >> "%PRGF%\Pi-hole Configuration.cmd"
-ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Configuration.cmd"
+ECHO @WSLCONFIG /T Pi-hole                                                                                                               > "%PRGF%\Pi-hole Repair.cmd"
+ECHO @START /MIN "Gravity Tempfile Monitor" %GO% "while : ; do sed -i 's|gravityTEMPfile=\"${GRAVITYDB}_temp\"|gravityTEMPfile=\"/dev/shm/gravity.db_temp\"|' /etc/.pihole/gravity.sh ; sleep .1 ; done" >> "%PRGF%\Pi-hole Repair.cmd" 
+ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole repair"                                                               >> "%PRGF%\Pi-hole Repair.cmd"   
+ECHO @%GO% "sed -i 's* -f 3* -f 4*g' /opt/pihole/piholeDebug.sh"                                                                        >> "%PRGF%\Pi-hole Repair.cmd"
+ECHO @%GO% "sed -i 's*-I \"${PIHOLE_INTERFACE}\"* *g' /opt/pihole/piholeDebug.sh"                                                       >> "%PRGF%\Pi-hole Repair.cmd"
+ECHO @START /WAIT /MIN "Pi-hole Init" "%PRGF%\Pi-hole Launcher.cmd"                                                                     >> "%PRGF%\Pi-hole Repair.cmd"
+ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                          >> "%PRGF%\Pi-hole Repair.cmd"
 ECHO @START http://%COMPUTERNAME%:%PORT%/admin                                                                                           > "%PRGF%\Pi-hole Web Admin.cmd"
-POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Configuration.cmd' -Raw ) -replace 'reconfigure','updatePihole 2>/dev/null'" > "%PRGF%\Pi-hole System Update.cmd"
+POWERSHELL.EXE -Command "(Get-Content -path '%PRGF%\Pi-hole Repair.cmd' -Raw ) -replace 'repair','updatePihole 2>/dev/null'"             > "%PRGF%\Pi-hole System Update.cmd"
 ECHO @%GO% "sed -i 's|gravityTEMPfile=\"${GRAVITYDB}_temp\"|gravityTEMPfile=\"/dev/shm/gravity.db_temp\"|' /opt/pihole/gravity.sh"       > "%PRGF%\Pi-hole Gravity Update.cmd"  
 ECHO @%GO% "echo 'nameserver 9.9.9.9' > /etc/resolv.conf ; pihole updateGravity ; echo ; read -p 'Hit [Enter] to close this window...'" >> "%PRGF%\Pi-hole Gravity Update.cmd" 
 START /WAIT /MIN "Pi-hole Launcher" "%PRGF%\Pi-hole Launcher.cmd"  
